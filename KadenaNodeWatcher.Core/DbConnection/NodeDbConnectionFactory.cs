@@ -17,6 +17,18 @@ public class NodeDbConnectionFactory : SqliteDbConnectionFactory
     {
         dbConnection.Execute(
             @"
+                CREATE TABLE IF NOT EXISTS Nodes
+                    (
+	                    Id                                  INTEGER PRIMARY KEY AUTOINCREMENT,
+	                    IpAddress							VARCHAR(255) NULL,
+	                    Hostname							VARCHAR(255) NULL,
+	                    Port                                INTEGER NULL,
+                        IsOnline                            BOOLEAN NULL,
+                        NodeVersion                         VARCHAR(10) NULL,
+                        Created 							DATE DEFAULT (strftime('%s', date('now')))
+                    );
+                CREATE INDEX Nodes_Created_ix ON Nodes(Created DESC);
+
                 CREATE TABLE IF NOT EXISTS Logs
                     (
 	                    Id                                  INTEGER PRIMARY KEY AUTOINCREMENT,
