@@ -14,6 +14,8 @@ public class ChainwebNodeService : IChainwebNodeService
     
     private readonly NodeVersion _nodeVersion;
     private readonly string _nodeApiVersion;
+    
+    private readonly string _baseAddress;
 
     public ChainwebNodeService(
         IHttpClientFactory clientFactory,
@@ -28,6 +30,10 @@ public class ChainwebNodeService : IChainwebNodeService
         
         _nodeVersion = networkConfig.NodeVersion;
         _nodeApiVersion = networkConfig.NodeApiVersion;
+        
+        string node = _appSettings.GetSelectedRootNode();
+        
+        _baseAddress = node;
     }
 
     /// <summary>
@@ -51,6 +57,11 @@ public class ChainwebNodeService : IChainwebNodeService
         };
 
         return getCutResponse;
+    }
+
+    public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync()
+    {
+        return await GetCutNetworkPeerInfoAsync(_baseAddress);
     }
 
     public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress)
