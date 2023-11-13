@@ -12,7 +12,13 @@ public class App
     }
     public async Task Run()
     {
-        var result = await _chainwebNodeService.GetCutNetworkPeerInfoAsync("https://us-e1.chainweb.com");
+        string address = "https://us-e1.chainweb.com";
+        var result = await _chainwebNodeService.GetCutNetworkPeerInfoAsync(address);
         Console.WriteLine(result.ResponseHeaders.ChainwebNodeVersion);
+
+        var getCutResponse = await _chainwebNodeService.GetCutAsync(address);
+        Console.WriteLine($"Node version: {getCutResponse.ResponseHeaders.ChainwebNodeVersion}");
+        Console.WriteLine($"Node height: {getCutResponse.Cut.Height}");
+        
     }
 }

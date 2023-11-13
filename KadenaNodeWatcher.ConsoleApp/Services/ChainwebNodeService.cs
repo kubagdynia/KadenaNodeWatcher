@@ -24,6 +24,29 @@ public class ChainwebNodeService : IChainwebNodeService
         _nodeApiVersion = "0.0";
     }
 
+    /// <summary>
+    /// Query the current cut from a Chainweb node.
+    /// </summary>
+    /// <param name="baseAddress"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public async Task<GetCutResponse> GetCutAsync(string baseAddress)
+    {
+        string requestUri = $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut";
+        
+        var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
+        
+        using HttpResponseMessage response = await client.GetAsync(requestUri);
+        
+        var getCutResponse = new GetCutResponse
+        {
+            ResponseHeaders = _chainwebCommon.GetResponseHeaders(response),
+            Cut = await response.Content.ReadFromJsonAsync<Cut>()
+        };
+
+        return getCutResponse;
+    }
+
     public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress)
     {
         string requestUri =
