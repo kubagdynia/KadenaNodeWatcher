@@ -2,12 +2,14 @@ using System.Net.Http.Json;
 using KadenaNodeWatcher.Core.Chainweb;
 using KadenaNodeWatcher.Core.Configuration;
 using KadenaNodeWatcher.Core.Models;
+using Microsoft.Extensions.Options;
 
 namespace KadenaNodeWatcher.ConsoleApp.Services;
 
 public class ChainwebNodeService : IChainwebNodeService
 {
     private readonly IHttpClientFactory _clientFactory;
+    private readonly AppSettings _appSettings;
     private readonly IChainwebCommon _chainwebCommon;
     
     private readonly NodeVersion _nodeVersion;
@@ -15,13 +17,17 @@ public class ChainwebNodeService : IChainwebNodeService
 
     public ChainwebNodeService(
         IHttpClientFactory clientFactory,
+        IOptions<AppSettings> appSettings,
         IChainwebCommon chainwebCommon)
     {
         _clientFactory = clientFactory;
+        _appSettings = appSettings.Value;
         _chainwebCommon = chainwebCommon;
         
-        _nodeVersion = NodeVersion.mainnet01;
-        _nodeApiVersion = "0.0";
+        NetworkConfig networkConfig = _appSettings.GetSelectedNetworkConfig();
+        
+        _nodeVersion = networkConfig.NodeVersion;
+        _nodeApiVersion = networkConfig.NodeApiVersion;
     }
 
     /// <summary>
@@ -50,7 +56,7 @@ public class ChainwebNodeService : IChainwebNodeService
     public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress)
     {
         string requestUri =
-            $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit=250";
+            $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_appSettings.PageLimit}";
         
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
         
