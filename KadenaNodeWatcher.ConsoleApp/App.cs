@@ -1,4 +1,4 @@
-using KadenaNodeWatcher.ConsoleApp.Services;
+using KadenaNodeWatcher.Core.Chainweb;
 
 namespace KadenaNodeWatcher.ConsoleApp;
 

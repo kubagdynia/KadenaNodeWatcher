@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         }
         
         services.AddSingleton<IChainwebCommon, ChainwebCommon>();
+        services.AddSingleton<IChainwebNodeService, ChainwebNodeService>();
         
         services.AddTransient<IDbConnectionFactory, NodeDbConnectionFactory>();
         services.AddTransient<IDbLogger, DbLogger>();

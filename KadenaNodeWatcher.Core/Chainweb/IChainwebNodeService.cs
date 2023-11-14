@@ -1,6 +1,6 @@
 using KadenaNodeWatcher.Core.Models;
 
-namespace KadenaNodeWatcher.ConsoleApp.Services;
+namespace KadenaNodeWatcher.Core.Chainweb;
 
 public interface IChainwebNodeService
 {

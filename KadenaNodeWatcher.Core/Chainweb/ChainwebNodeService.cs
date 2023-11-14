@@ -1,18 +1,17 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using KadenaNodeWatcher.Core.Chainweb;
 using KadenaNodeWatcher.Core.Configuration;
 using KadenaNodeWatcher.Core.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
 
-namespace KadenaNodeWatcher.ConsoleApp.Services;
+namespace KadenaNodeWatcher.Core.Chainweb;
 
 public class ChainwebNodeService : IChainwebNodeService
 {
     private readonly IHttpClientFactory _clientFactory;
-    private readonly ILogger<App> _logger;
+    private readonly ILogger<ChainwebNodeService> _logger;
     private readonly AppSettings _appSettings;
     private readonly IChainwebCommon _chainwebCommon;
     
@@ -24,7 +23,7 @@ public class ChainwebNodeService : IChainwebNodeService
     public ChainwebNodeService(
         IHttpClientFactory clientFactory,
         IOptions<AppSettings> appSettings,
-        ILogger<App> logger,
+        ILogger<ChainwebNodeService> logger,
         IChainwebCommon chainwebCommon)
     {
         _clientFactory = clientFactory;

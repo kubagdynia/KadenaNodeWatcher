@@ -1,5 +1,4 @@
 ﻿using KadenaNodeWatcher.ConsoleApp;
-using KadenaNodeWatcher.ConsoleApp.Services;
 using KadenaNodeWatcher.Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +27,6 @@ void ConfigureServices()
     AddHttpClient();
     
     services.RegisterCore(configuration, "App");
-    
-    services.AddTransient<IChainwebNodeService, ChainwebNodeService>();
     
     services.AddTransient<App>();
 }
