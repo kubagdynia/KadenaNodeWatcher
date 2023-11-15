@@ -26,6 +26,18 @@ namespace DbConnectionExtensions.DbConnection
             SqliteConfiguration sqliteConfiguration =
                 config.GetSection($"{ConfigurationSection}:{useConnection}").Get<SqliteConfiguration>();
 
+            if (sqliteConfiguration is null)
+            {
+                throw new ArgumentNullException(nameof(sqliteConfiguration),
+                    "Database configuration is missing.");
+            }
+            
+            if (string.IsNullOrEmpty(sqliteConfiguration.DbFilename))
+            {
+                throw new ArgumentNullException(sqliteConfiguration.DbFilename,
+                    "Database name is missing in database configuration.");
+            }
+            
             _fileName = Path.Combine(Environment.CurrentDirectory, sqliteConfiguration.DbFilename);
 
             InitializeDatabase();

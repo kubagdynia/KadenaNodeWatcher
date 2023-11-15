@@ -7,10 +7,5 @@ namespace DbConnectionExtensions.DbConnection.Base
         public abstract string ConnectionName { get; }
 
         public abstract IDbConnection Connection();
-
-        public IDbConnection Connection(string name)
-        {
-            throw new System.NotImplementedException();
-        }
     }
 }
