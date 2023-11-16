@@ -21,10 +21,10 @@ namespace DbConnectionExtensions.DbConnection
         {
             ConnectionName = connectionName;
 
-            string useConnection = config.GetSection(ConfigurationSection)["UseConnection"] ?? connectionName;
+            string selectedConnection = config.GetSection(ConfigurationSection)["SelectedConnection"] ?? connectionName;
 
             SqliteConfiguration sqliteConfiguration =
-                config.GetSection($"{ConfigurationSection}:{useConnection}").Get<SqliteConfiguration>();
+                config.GetSection($"{ConfigurationSection}:{selectedConnection}").Get<SqliteConfiguration>();
 
             if (sqliteConfiguration is null)
             {
