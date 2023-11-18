@@ -53,17 +53,10 @@ public class App
         int peersCount = peers.Count;
         for (int i = 0; i < peersCount; i++)
         {
-            GetUniquePeers(peers[i], uniquePeers);
+            await GetUniquePeers(peers[i], uniquePeers);
         }
         
-        // string address = "https://us-e1.chainweb.com";
-        // var result = await chainwebNodeService.GetCutNetworkPeerInfoAsync(address);
-        // Console.WriteLine(result.ResponseHeaders.ChainwebNodeVersion);
-        //
-        // var getCutResponse = await chainwebNodeService.GetCutAsync(address);
-        // Console.WriteLine($"Node version: {getCutResponse.ResponseHeaders.ChainwebNodeVersion}");
-        // Console.WriteLine($"Node height: {getCutResponse.Cut.Height}");
-        
+        Console.WriteLine($"END - {uniquePeers.Count}");
     }
     
     private List<Peer> PreparePeers(List<Peer> items)
@@ -86,9 +79,46 @@ public class App
         return items.GetRandomElements(count);
     }
     
-    private void GetUniquePeers(Peer peer, List<Peer> uniquePeers)
+    private async Task GetUniquePeers(Peer peer, List<Peer> uniquePeers)
     {
-        // TODO
+        List<Peer> peers = uniquePeers.Where(c => c.Address.Hostname == peer.Address.Hostname).ToList();
+        
+        GetCutNetworkPeerInfoResponse response;
+        try
+        {
+            response =
+                await _chainwebNodeService.GetCutNetworkPeerInfoAsync(
+                    $"https://{peer.Address.Hostname}:{peer.Address.Port}");
+        }
+        catch (Exception)
+        {
+            foreach (var peer2 in peers)
+            {
+                peer2.IsOnline = false;
+            }
+
+            return;
+        }
+        
+        if (response is null)
+        {
+            foreach (var peer2 in peers)
+            {
+                peer2.IsOnline = false;
+            }
+
+            return;
+        }
+
+        foreach (var peer2 in peers)
+        {
+            peer2.IsOnline = true;
+            peer2.ChainwebNodeVersion = response.ResponseHeaders?.ChainwebNodeVersion;
+        }
+
+        uniquePeers.AddUniqueAddress(response.Page.Items);
+
+        Console.WriteLine($"--------------- {uniquePeers.Count}");
     }
     
     /// <summary>

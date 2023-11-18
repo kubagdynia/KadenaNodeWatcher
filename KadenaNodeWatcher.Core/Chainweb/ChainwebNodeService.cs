@@ -104,6 +104,7 @@ public class ChainwebNodeService : IChainwebNodeService
 
     public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress)
     {
+        // limit - Maximum number of records that may be returned.
         string requestUri =
             $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_appSettings.PageLimit}";
         
@@ -159,6 +160,13 @@ public class ChainwebNodeService : IChainwebNodeService
         return await Task.FromResult<GetCutNetworkPeerInfoResponse>(null);
     }
     
+    /// <summary>
+    /// Returns peers from the peer database of the remote node
+    /// </summary>
+    /// <param name="baseAddress"></param>
+    /// <param name="next">The cursor for the next page.
+    /// This value can be found as value of the next property of the previous page.</param>
+    /// <returns>Peers from the peer database of the remote node</returns>
     private async Task<List<Peer>> GetCutNetworkPeerInfoAsync(string baseAddress, string next)
     {
         List<Peer> items = new List<Peer>();
@@ -173,12 +181,15 @@ public class ChainwebNodeService : IChainwebNodeService
 
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
-        using HttpResponseMessage response = await client.GetAsync(requestUri);
+        using HttpResponseMessage peers = await client.GetAsync(requestUri);
             
-        if (response.IsSuccessStatusCode)
+        if (peers.IsSuccessStatusCode)
         {
-            Page page = await response.Content.ReadFromJsonAsync<Page>();
+            Page page = await peers.Content.ReadFromJsonAsync<Page>();
+            // Add an array of child peers to the result
             items.AddRange(page.Items);
+            // If there is a next page, read this data.
+            // Read the following pages until you have read them all.
             if (!string.IsNullOrEmpty(page.Next))
             {
                 items.AddRange(await GetCutNetworkPeerInfoAsync(baseAddress, page.Next));
