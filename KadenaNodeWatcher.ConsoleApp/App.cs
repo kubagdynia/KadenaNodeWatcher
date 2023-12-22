@@ -41,7 +41,7 @@ public class App
         
         _dbLogger.AddInfoLog("Job started.", DbLoggerOperationType.GetNodesInfo);
         
-        List<Peer> uniquePeers = new List<Peer>();
+        List<Peer> uniquePeers = [];
         
         GetCutNetworkPeerInfoResponse response = await _chainwebNodeService.GetCutNetworkPeerInfoAsync();
         uniquePeers.AddRange(response.Page.Items);
