@@ -43,6 +43,7 @@ public class App
             Console.WriteLine($"Ip: {uri.GetIp()}");
             Console.WriteLine($"ChainwebNodeVersion: {response.ResponseHeaders.ChainwebNodeVersion}");
             Console.WriteLine($"ServerTimestamp: {response.ResponseHeaders.ServerTimestamp}");
+            Console.WriteLine($"ServerDateTime: {response.ResponseHeaders.ServerTimestamp.UnixTimeToUtcDateTime()}");
             Console.WriteLine($"UniquePeers: {uniquePeers.Count}");
         }
         else
