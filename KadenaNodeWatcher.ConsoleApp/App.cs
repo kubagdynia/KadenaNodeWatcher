@@ -28,35 +28,54 @@ public class App
         _appSettings = appSettings?.Value;
     }
     
-    public async Task Run()
+    public async Task Run(RunningOptions runningOptions)
     {
-        int count = await _nodeRepository.CountNodes(DateTime.Now);
-        
-        if (count > 0)
+        if (!string.IsNullOrEmpty(runningOptions.HostName))
         {
-            _dbLogger.AddInfoLog($"Nodes info has already been collected today: {count}.",
-                DbLoggerOperationType.GetNodesInfo);
-            return;
-        }
-        
-        _dbLogger.AddInfoLog("Job started.", DbLoggerOperationType.GetNodesInfo);
-        
-        List<Peer> uniquePeers = [];
-        
-        GetCutNetworkPeerInfoResponse response = await _chainwebNodeService.GetCutNetworkPeerInfoAsync();
-        uniquePeers.AddRange(response.Page.Items);
-        
-        Console.WriteLine($"--------------- {uniquePeers.Count}");
-        
-        List<Peer> peers = PreparePeers(response.Page.Items);
+            List<Peer> uniquePeers = [];
 
-        int peersCount = peers.Count;
-        for (int i = 0; i < peersCount; i++)
-        {
-            await GetUniquePeers(peers[i], uniquePeers);
+            GetCutNetworkPeerInfoResponse response = await _chainwebNodeService.GetCutNetworkPeerInfoAsync(runningOptions.HostName);
+            uniquePeers.AddRange(response.Page.Items);
+
+            Console.WriteLine($"Hostname: {runningOptions.HostName}");
+            Uri uri = new Uri("https://us-e1.chainweb.com");
+            Console.WriteLine($"Host: {uri.Host}");
+            Console.WriteLine($"Ip: {uri.GetIp()}");
+            Console.WriteLine($"ChainwebNodeVersion: {response.ResponseHeaders.ChainwebNodeVersion}");
+            Console.WriteLine($"ServerTimestamp: {response.ResponseHeaders.ServerTimestamp}");
+            Console.WriteLine($"UniquePeers: {uniquePeers.Count}");
         }
-        
-        Console.WriteLine($"END - {uniquePeers.Count}");
+        else
+        {
+
+            int count = await _nodeRepository.CountNodes(DateTime.Now);
+
+            if (count > 0)
+            {
+                _dbLogger.AddInfoLog($"Nodes info has already been collected today: {count}.",
+                    DbLoggerOperationType.GetNodesInfo);
+                return;
+            }
+
+            _dbLogger.AddInfoLog("Job started.", DbLoggerOperationType.GetNodesInfo);
+
+            List<Peer> uniquePeers = [];
+
+            GetCutNetworkPeerInfoResponse response = await _chainwebNodeService.GetCutNetworkPeerInfoAsync();
+            uniquePeers.AddRange(response.Page.Items);
+
+            Console.WriteLine($"--------------- {uniquePeers.Count}");
+
+            List<Peer> peers = PreparePeers(response.Page.Items);
+
+            int peersCount = peers.Count;
+            for (int i = 0; i < peersCount; i++)
+            {
+                await GetUniquePeers(peers[i], uniquePeers);
+            }
+
+            Console.WriteLine($"END - {uniquePeers.Count}");
+        }
     }
     
     private List<Peer> PreparePeers(List<Peer> items)
