@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using IpGeolocation.Extensions;
 using KadenaNodeWatcher.ConsoleApp;
 using KadenaNodeWatcher.Core.Extensions;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,8 @@ var serviceProvider = services.BuildServiceProvider();
 
 await serviceProvider.GetService<App>()!.Run(runningOptions);
 
+serviceProvider.Dispose();
+
 void ConfigureServices()
 {
     // build config
@@ -30,6 +33,8 @@ void ConfigureServices()
     AddHttpClient();
     
     services.RegisterCore(configuration, "App");
+    
+    services.UseIpGeolocation(configuration);
     
     services.AddTransient<App>();
 }

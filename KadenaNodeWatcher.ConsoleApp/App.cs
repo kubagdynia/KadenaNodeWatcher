@@ -1,3 +1,5 @@
+using IpGeolocation.Models;
+using IpGeolocation.Services;
 using KadenaNodeWatcher.Core.Chainweb;
 using KadenaNodeWatcher.Core.Configuration;
 using KadenaNodeWatcher.Core.Extensions;
@@ -14,17 +16,20 @@ public class App
     private readonly IChainwebNodeService _chainwebNodeService;
     private readonly INodeRepository _nodeRepository;
     private readonly IDbLogger _dbLogger;
+    private readonly IIpGeolocationService _ipGeolocationService;
     private readonly AppSettings _appSettings;
 
     public App(
         IChainwebNodeService chainwebNodeService,
         INodeRepository nodeRepository,
         IDbLogger dbLogger,
-        IOptions<AppSettings> appSettings)
+        IOptions<AppSettings> appSettings,
+        IIpGeolocationService ipGeolocationService)
     {
         _chainwebNodeService = chainwebNodeService;
         _nodeRepository = nodeRepository;
         _dbLogger = dbLogger;
+        _ipGeolocationService = ipGeolocationService;
         _appSettings = appSettings?.Value;
     }
     
@@ -36,15 +41,32 @@ public class App
 
             GetCutNetworkPeerInfoResponse response = await _chainwebNodeService.GetCutNetworkPeerInfoAsync(runningOptions.HostName);
             uniquePeers.AddRange(response.Page.Items);
+            
+            Uri uri = new Uri(runningOptions.HostName);
+
+
+            IpGeolocationModel ipGeolocation = null;
+            if (runningOptions.CheckIpGeolocation)
+            {
+                ipGeolocation = await _ipGeolocationService.GetIpGeolocationAsync(uri.GetIp());
+            }
 
             Console.WriteLine($"Hostname: {runningOptions.HostName}");
-            Uri uri = new Uri("https://us-e1.chainweb.com");
             Console.WriteLine($"Host: {uri.Host}");
             Console.WriteLine($"Ip: {uri.GetIp()}");
             Console.WriteLine($"ChainwebNodeVersion: {response.ResponseHeaders.ChainwebNodeVersion}");
             Console.WriteLine($"ServerTimestamp: {response.ResponseHeaders.ServerTimestamp}");
             Console.WriteLine($"ServerDateTime: {response.ResponseHeaders.ServerTimestamp.UnixTimeToUtcDateTime()}");
             Console.WriteLine($"UniquePeers: {uniquePeers.Count}");
+
+            if (runningOptions.CheckIpGeolocation && ipGeolocation is not null)
+            {
+                Console.WriteLine($"CountryName: {ipGeolocation.CountryName}");
+                Console.WriteLine($"CountryCodeIso3: {ipGeolocation.CountryCodeIso3}");
+                Console.WriteLine($"City: {ipGeolocation.City}");
+                Console.WriteLine($"RegionCode: {ipGeolocation.RegionCode}");
+                Console.WriteLine($"Region: {ipGeolocation.Region}");
+            }
         }
         else
         {
