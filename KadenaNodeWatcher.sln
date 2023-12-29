@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KadenaNodeWatcher.ConsoleApp", "KadenaNodeWatcher.ConsoleApp\KadenaNodeWatcher.ConsoleApp.csproj", "{3A12ACD8-F327-43F7-ADAE-2D864C87ECB6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KadenaNodeWatcher.Core", "KadenaNodeWatcher.Core\KadenaNodeWatcher.Core.csproj", "{F3EDE4F8-F203-4A35-A79E-F606B3C721E4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionExtensions", "DbConnectionExtensions\DbConnectionExtensions.csproj", "{4CF345C1-9230-430A-B27F-87CFC0DCC075}"
@@ -20,10 +18,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3A12ACD8-F327-43F7-ADAE-2D864C87ECB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A12ACD8-F327-43F7-ADAE-2D864C87ECB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A12ACD8-F327-43F7-ADAE-2D864C87ECB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A12ACD8-F327-43F7-ADAE-2D864C87ECB6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3EDE4F8-F203-4A35-A79E-F606B3C721E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3EDE4F8-F203-4A35-A79E-F606B3C721E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3EDE4F8-F203-4A35-A79E-F606B3C721E4}.Release|Any CPU.ActiveCfg = Release|Any CPU

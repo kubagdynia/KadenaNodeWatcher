@@ -13,7 +13,11 @@ public class App(
 {
     public async Task Run(RunningOptions runningOptions)
     {
-        if (!string.IsNullOrEmpty(runningOptions.HostName))
+        if (runningOptions.CollectNodeDataAutomatically)
+        {
+            await kadenaNodeWatcherService.CollectNodeData();
+        }
+        else if (!string.IsNullOrEmpty(runningOptions.HostName))
         {
             NodeDataResponse nodeDataResult =
                 await kadenaNodeWatcherService.GetNodeData(runningOptions.HostName, checkIpGeolocation: true);
