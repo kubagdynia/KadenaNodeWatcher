@@ -1,5 +1,5 @@
 ﻿using CommandLine;
-using KadenaNodeWatcher.ConsoleApp;
+using KadenaNodeWatcher.Collector;
 using KadenaNodeWatcher.Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
