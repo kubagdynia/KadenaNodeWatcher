@@ -35,20 +35,19 @@ public class KadenaNodeWatcherService(
 
         GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(hostName);
         uniquePeers.AddRange(response.Page.Items);
-            
-        Uri uri = new Uri(hostName);
+        
+        string ip = GetIp(hostName);
         
         IpGeolocationModel ipGeolocation = null;
         if (checkIpGeolocation)
         {
-            ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(uri.GetIp());
+            ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(ip);
         }
         
-        NodeDataResponse nodeDataResponse = new NodeDataResponse()
+        NodeDataResponse nodeDataResponse = new NodeDataResponse
         {
             HostName = hostName,
-            Host = uri.Host,
-            Ip = uri.GetIp(),
+            Ip = ip,
             ChainwebNodeVersion = response.ResponseHeaders.ChainwebNodeVersion,
             ServerTimestamp = response.ResponseHeaders.ServerTimestamp,
             ServerDateTime = response.ResponseHeaders.ServerTimestamp.UnixTimeToUtcDateTime(),
@@ -58,11 +57,16 @@ public class KadenaNodeWatcherService(
         {
             nodeDataResponse.IpGeo = new IpGeo
             {
-                CountryName = ipGeolocation.CountryName,
-                CountryCodeIso3 = ipGeolocation.CountryCodeIso3,
+                IpAddress = ip,
                 City = ipGeolocation.City,
+                Country = ipGeolocation.Country,
+                CountryCode = ipGeolocation.CountryCode,
+                CountryCodeIso3 = ipGeolocation.CountryCodeIso3,
+                CountryName = ipGeolocation.CountryName,
+                ContinentCode = ipGeolocation.ContinentCode,
                 RegionCode = ipGeolocation.RegionCode,
-                Region = ipGeolocation.Region
+                Region = ipGeolocation.Region,
+                Org = ipGeolocation.Org
             };
         }
 
@@ -70,7 +74,7 @@ public class KadenaNodeWatcherService(
     }
 
     public async Task CollectNodeData()
-    {
+    { 
         int count = await nodeRepository.CountNodes(DateTime.Now);
         
         if (count > 0)
@@ -95,6 +99,19 @@ public class KadenaNodeWatcherService(
         for (int i = 0; i < peersCount; i++)
         {
             await GetUniquePeers(peers[i], uniquePeers);
+        }
+
+        Console.WriteLine("AddIpAddress");
+        AddIpAddress(uniquePeers);
+        
+        Console.WriteLine("Sort");
+        uniquePeers.Sort((peer, peer1) =>
+            string.Compare(peer.Address.Hostname, peer1.Address.Hostname, StringComparison.Ordinal));
+        
+        Console.WriteLine("IsOnline");
+        foreach (var peer in uniquePeers.Where(c => c.IsOnline is null))
+        {
+            await IsOnline(peer);
         }
         
         Console.WriteLine($"END - {uniquePeers.Count}");
@@ -190,6 +207,57 @@ public class KadenaNodeWatcherService(
         {
             peer.IsOnline = false;
         }
+    }
+    
+    private void AddIpAddress(List<Peer> uniquePeers)
+    {
+        foreach (var peer in uniquePeers)
+        {
+            if (peer is null)
+            {
+                continue;
+            }
+
+            peer.Address.Ip = GetIp(peer.Address.Hostname);
+        }
+    }
+
+    private string GetIp(string hostName)
+    {
+        UriHostNameType uriHostNameType = Uri.CheckHostName(hostName);
+        if (uriHostNameType == UriHostNameType.Dns)
+        {
+            try
+            {
+                System.Net.IPAddress[] ddIpAddresses = System.Net.Dns.GetHostAddresses(hostName);
+                var ipAddress = ddIpAddresses.FirstOrDefault();
+                return ipAddress?.ToString();
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+        else if (uriHostNameType == UriHostNameType.Unknown)
+        {
+            try
+            {
+                Uri uri = new Uri(hostName);
+                return uri.GetIp();
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return hostName;
+        }
+        else
+        {
+            return hostName;
+        }
+        
+        return string.Empty;
     }
 }
 

@@ -25,7 +25,8 @@ public class NodeDbConnectionFactory : SqliteDbConnectionFactory
 	                    Port                                INTEGER NULL,
                         IsOnline                            BOOLEAN NULL,
                         NodeVersion                         VARCHAR(10) NULL,
-                        Created 							DATE DEFAULT (strftime('%s', date('now')))
+                        Created 							DATE DEFAULT (strftime('%s', date('now'))),
+                        Timestamp 							DATE DEFAULT (strftime('%s', 'now'))
                     );
                 CREATE INDEX Nodes_Created_ix ON Nodes(Created DESC);
 
@@ -38,6 +39,23 @@ public class NodeDbConnectionFactory : SqliteDbConnectionFactory
                         Timestamp 							DATE DEFAULT (strftime('%s', 'now'))
                     );
                 CREATE INDEX IF NOT EXISTS Logs_Timestamp_ix ON Logs(Timestamp DESC);
+
+                CREATE TABLE IF NOT EXISTS IpGeolocation
+                    (
+	                    Id                                  INTEGER PRIMARY KEY AUTOINCREMENT,
+	                    IpAddress							VARCHAR(255) NULL,
+                        City    							VARCHAR(255) NULL,
+                        Country     						VARCHAR(255) NULL,
+                        CountryCode 						VARCHAR(5) NULL,    
+                        CountryCodeIso3						VARCHAR(5) NULL,
+                        CountryName						    VARCHAR(255) NULL,
+                        ContinentCode						VARCHAR(5) NULL,
+                        RegionCode						    VARCHAR(5) NULL,
+                        Region  						    VARCHAR(255) NULL,
+                        Org       						    VARCHAR(255) NULL,
+                        Timestamp 							DATE DEFAULT (strftime('%s', 'now'))
+                    );
+                CREATE UNIQUE INDEX IpGeolocation_IpAddress_ix ON IpGeolocation(IpAddress);
 
                 ");
         

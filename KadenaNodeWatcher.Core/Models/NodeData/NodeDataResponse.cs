@@ -4,8 +4,6 @@ public class NodeDataResponse
 {
     public string HostName { get; set; }
     
-    public string Host { get; set; }
-    
     public string Ip { get; set; }
     
     public string ChainwebNodeVersion { get; set; }
