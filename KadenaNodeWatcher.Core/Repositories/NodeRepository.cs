@@ -59,6 +59,47 @@ public class NodeRepository : INodeRepository
 
     }
 
+    public async Task<IpGeolocationDb> GetIpGeolocationAsync(string ip)
+    {
+        if (string.IsNullOrEmpty(ip))
+        {
+            return await Task.FromResult<IpGeolocationDb>(null);
+        }
+        
+        using var conn = _connectionFactory.Connection();
+
+        IpGeolocationDb ipGeolocationDb = await conn.QueryFirstAsync<IpGeolocationDb>(
+            @"SELECT Id, IpAddress, City, Country,CountryCode, CountryCodeIso3, CountryName, ContinentCode, RegionCode, Region, Org
+                  FROM IpGeolocation WHERE IpAddress = @IpAddress", new { IpAddress = ip });
+
+        return ipGeolocationDb;
+    }
+
     private long GetUtcUnixTimeSeconds(DateTime date)
         => new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc).Date).ToUnixTimeSeconds();
+}
+
+public class IpGeolocationDb
+{
+    public int Id { get; set; }
+    
+    public string IpAddress { get; set; }
+    
+    public string City { get; set; }
+    
+    public string Country { get; set; }
+    
+    public string CountryCode { get; set; }
+    
+    public string CountryCodeIso3 { get; set; }
+    
+    public string CountryName { get; set; }
+    
+    public string ContinentCode { get; set; }
+    
+    public string RegionCode { get; set; }
+    
+    public string Region { get; set; }
+    
+    public string Org { get; set; }
 }

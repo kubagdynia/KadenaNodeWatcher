@@ -41,7 +41,30 @@ public class KadenaNodeWatcherService(
         IpGeolocationModel ipGeolocation = null;
         if (checkIpGeolocation)
         {
-            ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(ip);
+            IpGeolocationDb ipGeolocationDb = await nodeRepository.GetIpGeolocationAsync(ip);
+
+            if (ipGeolocationDb is null)
+            {
+                ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(ip);
+            }
+            else
+            {
+                ipGeolocation = new IpGeolocationModel
+                {
+                    Ip = ipGeolocationDb.IpAddress,
+                    City = ipGeolocationDb.City,
+                    Region = ipGeolocationDb.Region,
+                    RegionCode = ipGeolocationDb.RegionCode,
+                    Country = ipGeolocationDb.Country,
+                    CountryCode = ipGeolocationDb.CountryCode,
+                    CountryCodeIso3 = ipGeolocationDb.CountryCodeIso3,
+                    CountryName = ipGeolocationDb.CountryName,
+                    ContinentCode = ipGeolocationDb.ContinentCode,
+                    Org = ipGeolocationDb.Org
+                };
+            }
+            
+            
         }
         
         NodeDataResponse nodeDataResponse = new NodeDataResponse
