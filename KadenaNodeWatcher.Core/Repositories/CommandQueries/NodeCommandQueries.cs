@@ -9,4 +9,11 @@ public class NodeCommandQueries : INodeCommandQueries
         => isOnline.HasValue
             ? @"SELECT count(*) FROM Nodes WHERE Created = @date AND IsOnline = @isOnline"
             : @"SELECT count(*) FROM Nodes WHERE Created = @date";
-}
+
+    public string IpGeolocationExists
+        => @"SELECT EXISTS (SELECT 1 FROM IpGeolocation WHERE IpAddress = @IpAddress)";
+
+    public string AddIpGeolocation
+        => @"INSERT INTO IpGeolocation (IpAddress, City, Country, CountryCode, CountryCodeIso3, CountryName, ContinentCode, RegionCode, Region, Org)
+             VALUES (@IpAddress, @City, @Country, @CountryCode, @CountryCodeIso3, @CountryName, @ContinentCode, @RegionCode, @Region, @Org)";
+}  

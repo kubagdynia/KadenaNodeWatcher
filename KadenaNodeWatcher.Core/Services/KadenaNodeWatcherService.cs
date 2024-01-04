@@ -8,6 +8,7 @@ using KadenaNodeWatcher.Core.Logs.Models;
 using KadenaNodeWatcher.Core.Models;
 using KadenaNodeWatcher.Core.Models.NodeData;
 using KadenaNodeWatcher.Core.Repositories;
+using KadenaNodeWatcher.Core.Repositories.DbModels;
 using Microsoft.Extensions.Options;
 
 namespace KadenaNodeWatcher.Core.Services;
@@ -46,6 +47,10 @@ public class KadenaNodeWatcherService(
             if (ipGeolocationDb is null)
             {
                 ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(ip);
+                if (ipGeolocation is not null)
+                {
+                    await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
+                }
             }
             else
             {
@@ -63,8 +68,6 @@ public class KadenaNodeWatcherService(
                     Org = ipGeolocationDb.Org
                 };
             }
-            
-            
         }
         
         NodeDataResponse nodeDataResponse = new NodeDataResponse

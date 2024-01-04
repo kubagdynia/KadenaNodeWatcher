@@ -1,4 +1,4 @@
-﻿namespace KadenaNodeWatcher.Core.Models.DbModels;
+﻿namespace KadenaNodeWatcher.Core.Repositories.DbModels;
 
 public class NodeDbModel
 {

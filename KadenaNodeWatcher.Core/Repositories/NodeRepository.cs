@@ -1,7 +1,7 @@
 ﻿using Dapper;
 using DbConnectionExtensions.DbConnection.Base;
-using KadenaNodeWatcher.Core.Models.DbModels;
 using KadenaNodeWatcher.Core.Repositories.CommandQueries;
+using KadenaNodeWatcher.Core.Repositories.DbModels;
 
 namespace KadenaNodeWatcher.Core.Repositories;
 
@@ -68,38 +68,43 @@ public class NodeRepository : INodeRepository
         
         using var conn = _connectionFactory.Connection();
 
-        IpGeolocationDb ipGeolocationDb = await conn.QueryFirstAsync<IpGeolocationDb>(
+        IpGeolocationDb ipGeolocationDb = await conn.QueryFirstOrDefaultAsync<IpGeolocationDb>(
             @"SELECT Id, IpAddress, City, Country,CountryCode, CountryCodeIso3, CountryName, ContinentCode, RegionCode, Region, Org
                   FROM IpGeolocation WHERE IpAddress = @IpAddress", new { IpAddress = ip });
 
         return ipGeolocationDb;
     }
 
+    public async Task<bool> IpGeolocationExistsAsync(string ip)
+    {
+        using var conn = _connectionFactory.Connection();
+
+        var exists =
+            await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.IpGeolocationExists, new { IpAddress = ip });
+
+        return exists == 1;
+    }
+
+    public async Task AddIpGeolocationAsync(IpGeolocationDb ipGeolocation)
+    {
+        if (ipGeolocation is null || await IpGeolocationExistsAsync(ipGeolocation.IpAddress))
+        {
+            await Task.CompletedTask;
+        }
+        
+        using var conn = _connectionFactory.Connection();
+            
+        conn.Open();
+
+        var sqlTransaction = conn.BeginTransaction();
+
+        await conn.ExecuteAsync(_nodeCommandQueries.AddIpGeolocation, ipGeolocation, transaction: sqlTransaction);
+
+        sqlTransaction.Commit();
+
+        await Task.CompletedTask;
+    }
+
     private long GetUtcUnixTimeSeconds(DateTime date)
         => new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc).Date).ToUnixTimeSeconds();
-}
-
-public class IpGeolocationDb
-{
-    public int Id { get; set; }
-    
-    public string IpAddress { get; set; }
-    
-    public string City { get; set; }
-    
-    public string Country { get; set; }
-    
-    public string CountryCode { get; set; }
-    
-    public string CountryCodeIso3 { get; set; }
-    
-    public string CountryName { get; set; }
-    
-    public string ContinentCode { get; set; }
-    
-    public string RegionCode { get; set; }
-    
-    public string Region { get; set; }
-    
-    public string Org { get; set; }
 }
