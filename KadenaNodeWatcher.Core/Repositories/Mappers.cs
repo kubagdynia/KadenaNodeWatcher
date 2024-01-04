@@ -14,9 +14,24 @@ internal static class Mappers
             CountryCode = ipGeolocationModel.CountryCode,
             CountryCodeIso3 = ipGeolocationModel.CountryCodeIso3,
             CountryName = ipGeolocationModel.CountryName,
-            ContinentCode = ipGeolocationModel.ContinentCode,
             RegionCode = ipGeolocationModel.RegionCode,
             Region = ipGeolocationModel.Region,
+            ContinentCode = ipGeolocationModel.ContinentCode,
             Org = ipGeolocationModel.Org
+        };
+
+    internal static IpGeolocationModel ToApiModel(this IpGeolocationDb ipGeolocationDb)
+        => new()
+        {
+            Ip = ipGeolocationDb.IpAddress,
+            City = ipGeolocationDb.City,
+            Country = ipGeolocationDb.Country,
+            CountryCode = ipGeolocationDb.CountryCode,
+            CountryCodeIso3 = ipGeolocationDb.CountryCodeIso3,
+            CountryName = ipGeolocationDb.CountryName,
+            Region = ipGeolocationDb.Region,
+            RegionCode = ipGeolocationDb.RegionCode,
+            ContinentCode = ipGeolocationDb.ContinentCode,
+            Org = ipGeolocationDb.Org
         };
 }

@@ -54,19 +54,7 @@ internal class KadenaNodeWatcherService(
             }
             else
             {
-                ipGeolocation = new IpGeolocationModel
-                {
-                    Ip = ipGeolocationDb.IpAddress,
-                    City = ipGeolocationDb.City,
-                    Region = ipGeolocationDb.Region,
-                    RegionCode = ipGeolocationDb.RegionCode,
-                    Country = ipGeolocationDb.Country,
-                    CountryCode = ipGeolocationDb.CountryCode,
-                    CountryCodeIso3 = ipGeolocationDb.CountryCodeIso3,
-                    CountryName = ipGeolocationDb.CountryName,
-                    ContinentCode = ipGeolocationDb.ContinentCode,
-                    Org = ipGeolocationDb.Org
-                };
+                ipGeolocation = ipGeolocationDb.ToApiModel();
             }
         }
         
@@ -81,19 +69,7 @@ internal class KadenaNodeWatcherService(
         };
         if (checkIpGeolocation && ipGeolocation is not null)
         {
-            nodeDataResponse.IpGeo = new IpGeo
-            {
-                IpAddress = ip,
-                City = ipGeolocation.City,
-                Country = ipGeolocation.Country,
-                CountryCode = ipGeolocation.CountryCode,
-                CountryCodeIso3 = ipGeolocation.CountryCodeIso3,
-                CountryName = ipGeolocation.CountryName,
-                ContinentCode = ipGeolocation.ContinentCode,
-                RegionCode = ipGeolocation.RegionCode,
-                Region = ipGeolocation.Region,
-                Org = ipGeolocation.Org
-            };
+            nodeDataResponse.IpGeo = IpGeo.CreateIpGeo(ipGeolocation);
         }
 
         return await Task.FromResult(nodeDataResponse);
