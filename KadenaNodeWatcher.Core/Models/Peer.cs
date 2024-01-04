@@ -5,7 +5,7 @@ namespace KadenaNodeWatcher.Core.Models;
 /// <summary>
 /// Peer info object
 /// </summary>
-public class Peer
+internal class Peer
 {
     [JsonPropertyName("address")]
     public Address Address { get; set; }

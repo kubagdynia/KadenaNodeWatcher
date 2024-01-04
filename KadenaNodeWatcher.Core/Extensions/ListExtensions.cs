@@ -2,9 +2,9 @@ using KadenaNodeWatcher.Core.Models;
 
 namespace KadenaNodeWatcher.Core.Extensions;
 
-public static class ListExtensions
+internal static class ListExtensions
 {
-    public static void AddUnique<T>(this IList<T> self, IEnumerable<T> items)
+    internal static void AddUnique<T>(this IList<T> self, IEnumerable<T> items)
     {
         foreach (var item in items)
         {
@@ -17,7 +17,7 @@ public static class ListExtensions
         }
     }
         
-    public static void AddUniqueAddress(this IList<Peer> self, IEnumerable<Peer> items)
+    internal static void AddUniqueAddress(this IList<Peer> self, IEnumerable<Peer> items)
     {
         foreach (var item in items)
         {

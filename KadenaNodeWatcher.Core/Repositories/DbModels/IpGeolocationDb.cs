@@ -1,6 +1,6 @@
 ﻿namespace KadenaNodeWatcher.Core.Repositories.DbModels;
 
-public class IpGeolocationDb
+internal class IpGeolocationDb
 {
     public int Id { get; set; }
     

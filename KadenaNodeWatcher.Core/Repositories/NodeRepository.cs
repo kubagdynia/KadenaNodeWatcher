@@ -5,7 +5,7 @@ using KadenaNodeWatcher.Core.Repositories.DbModels;
 
 namespace KadenaNodeWatcher.Core.Repositories;
 
-public class NodeRepository : INodeRepository
+internal class NodeRepository : INodeRepository
 {
     private readonly IDbConnectionFactory _connectionFactory;
     private readonly INodeCommandQueries _nodeCommandQueries;

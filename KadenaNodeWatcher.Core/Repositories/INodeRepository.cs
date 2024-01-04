@@ -2,7 +2,7 @@
 
 namespace KadenaNodeWatcher.Core.Repositories;
 
-public interface INodeRepository
+internal interface INodeRepository
 {
     Task AddNode(NodeDbModel node);
 

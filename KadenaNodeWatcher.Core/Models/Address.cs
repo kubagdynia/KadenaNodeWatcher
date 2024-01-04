@@ -2,7 +2,7 @@
 
 namespace KadenaNodeWatcher.Core.Models;
 
-public class Address
+internal class Address
 {
     /// <summary>
     /// A domain name or IP address.

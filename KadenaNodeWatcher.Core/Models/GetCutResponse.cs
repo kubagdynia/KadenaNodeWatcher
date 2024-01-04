@@ -1,6 +1,6 @@
 ﻿namespace KadenaNodeWatcher.Core.Models;
 
-public class GetCutResponse
+internal class GetCutResponse
 {
     /// <summary>
     /// Cut datastruction of the chainweb API.

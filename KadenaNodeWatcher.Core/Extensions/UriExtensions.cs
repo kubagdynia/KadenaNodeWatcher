@@ -1,8 +1,8 @@
 ﻿namespace KadenaNodeWatcher.Core.Extensions;
 
-public static class UriExtensions
+internal static class UriExtensions
 {
-    public static string GetIp(this Uri uri)
+    internal static string GetIp(this Uri uri)
     {
         if (uri.HostNameType == UriHostNameType.Dns)
         {

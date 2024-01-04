@@ -2,7 +2,7 @@
 
 namespace KadenaNodeWatcher.Core.Models;
 
-public class Hashes
+internal class Hashes
 {
     [JsonPropertyName("0")]
     public ChainHash ChainHash0 { get; set; }

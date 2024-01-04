@@ -1,6 +1,6 @@
 ﻿namespace KadenaNodeWatcher.Core.Models;
 
-public class GetCutNetworkPeerInfoResponse
+internal class GetCutNetworkPeerInfoResponse
 {
     public Page Page{ get; set; }
 

@@ -2,7 +2,7 @@ using KadenaNodeWatcher.Core.Models;
 
 namespace KadenaNodeWatcher.Core.Chainweb;
 
-public class ChainwebCommon : IChainwebCommon
+internal class ChainwebCommon : IChainwebCommon
 {
     public ChainwebResponseHeaders GetResponseHeaders(HttpResponseMessage response)
     {

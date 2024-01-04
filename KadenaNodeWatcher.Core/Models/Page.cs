@@ -2,7 +2,7 @@
 
 namespace KadenaNodeWatcher.Core.Models;
 
-public class Page
+internal class Page
 {
     /// <summary>
     /// A cursor that can be used to query the next page.

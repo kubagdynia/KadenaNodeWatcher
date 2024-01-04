@@ -3,9 +3,9 @@ using KadenaNodeWatcher.Core.Repositories.DbModels;
 
 namespace KadenaNodeWatcher.Core.Repositories;
 
-public static class Mappers
+internal static class Mappers
 {
-    public static IpGeolocationDb ToDbModel(this IpGeolocationModel ipGeolocationModel)
+    internal static IpGeolocationDb ToDbModel(this IpGeolocationModel ipGeolocationModel)
         => new()
         {
             IpAddress = ipGeolocationModel.Ip,

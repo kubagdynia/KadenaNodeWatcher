@@ -20,7 +20,7 @@ public interface IKadenaNodeWatcherService
     Task CollectNodeData();
 }
 
-public class KadenaNodeWatcherService(
+internal class KadenaNodeWatcherService(
     IChainwebNodeService chainwebNodeService,
     IIpGeolocationService ipGeolocationService,
     INodeRepository nodeRepository,

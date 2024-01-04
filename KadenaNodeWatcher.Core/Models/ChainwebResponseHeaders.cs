@@ -1,6 +1,6 @@
 ﻿namespace KadenaNodeWatcher.Core.Models;
 
-public class ChainwebResponseHeaders
+internal class ChainwebResponseHeaders
 {
     /// <summary>
     /// Host and port of the client as observed by the remote node, e.g. "10.36.1.3:42988"

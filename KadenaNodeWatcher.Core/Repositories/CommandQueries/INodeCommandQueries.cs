@@ -1,6 +1,6 @@
 ﻿namespace KadenaNodeWatcher.Core.Repositories.CommandQueries;
 
-public interface INodeCommandQueries
+internal interface INodeCommandQueries
 {
     string AddNode { get; }
 

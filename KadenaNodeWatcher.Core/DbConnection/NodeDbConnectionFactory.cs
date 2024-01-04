@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace KadenaNodeWatcher.Core.DbConnection;
 
-public class NodeDbConnectionFactory : SqliteDbConnectionFactory
+internal class NodeDbConnectionFactory : SqliteDbConnectionFactory
 {
     public NodeDbConnectionFactory(IConfiguration config, string connectionName = "DefaultConnection")
         : base(config, connectionName)

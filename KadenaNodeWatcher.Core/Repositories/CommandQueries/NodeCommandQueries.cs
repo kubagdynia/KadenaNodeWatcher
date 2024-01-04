@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Repositories.CommandQueries;
 
-public class NodeCommandQueries : INodeCommandQueries
+internal class NodeCommandQueries : INodeCommandQueries
 {
     public string AddNode
         => @"INSERT INTO Nodes (IpAddress, Hostname, Port, IsOnline, NodeVersion) VALUES (@IpAddress, @Hostname, @Port, @IsOnline, @NodeVersion)";

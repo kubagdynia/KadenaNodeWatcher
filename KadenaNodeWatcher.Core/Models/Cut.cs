@@ -2,7 +2,7 @@
 
 namespace KadenaNodeWatcher.Core.Models;
 
-public class Cut
+internal class Cut
 {
     /// <summary>
     /// Peer info object

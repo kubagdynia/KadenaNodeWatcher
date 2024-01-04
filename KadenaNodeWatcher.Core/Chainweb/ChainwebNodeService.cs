@@ -8,7 +8,7 @@ using Polly.Timeout;
 
 namespace KadenaNodeWatcher.Core.Chainweb;
 
-public class ChainwebNodeService : IChainwebNodeService
+internal class ChainwebNodeService : IChainwebNodeService
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<ChainwebNodeService> _logger;
