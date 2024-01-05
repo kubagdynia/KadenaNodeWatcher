@@ -8,5 +8,7 @@ internal interface INodeCommandQueries
     
     string IpGeolocationExists { get; }
     
+    string GetIpGeolocation { get; }
+    
     string AddIpGeolocation { get; }
 }

@@ -68,9 +68,9 @@ internal class NodeRepository : INodeRepository
         
         using var conn = _connectionFactory.Connection();
 
-        IpGeolocationDb ipGeolocationDb = await conn.QueryFirstOrDefaultAsync<IpGeolocationDb>(
-            @"SELECT Id, IpAddress, City, Country,CountryCode, CountryCodeIso3, CountryName, ContinentCode, RegionCode, Region, Org
-                  FROM IpGeolocation WHERE IpAddress = @IpAddress", new { IpAddress = ip });
+        IpGeolocationDb ipGeolocationDb =
+            await conn.QueryFirstOrDefaultAsync<IpGeolocationDb>(
+                _nodeCommandQueries.GetIpGeolocation, new { IpAddress = ip });
 
         return ipGeolocationDb;
     }

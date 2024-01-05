@@ -65,12 +65,9 @@ internal class KadenaNodeWatcherService(
             ChainwebNodeVersion = response.ResponseHeaders.ChainwebNodeVersion,
             ServerTimestamp = response.ResponseHeaders.ServerTimestamp,
             ServerDateTime = response.ResponseHeaders.ServerTimestamp.UnixTimeToUtcDateTime(),
-            UniquePeers = uniquePeers.Count
+            UniquePeers = uniquePeers.Count,
+            IpGeo = checkIpGeolocation && ipGeolocation is not null ? IpGeo.CreateIpGeo(ipGeolocation) : null  
         };
-        if (checkIpGeolocation && ipGeolocation is not null)
-        {
-            nodeDataResponse.IpGeo = IpGeo.CreateIpGeo(ipGeolocation);
-        }
 
         return await Task.FromResult(nodeDataResponse);
     }
@@ -114,6 +111,7 @@ internal class KadenaNodeWatcherService(
         foreach (var peer in uniquePeers.Where(c => c.IsOnline is null))
         {
             await IsOnline(peer);
+            Console.WriteLine($"Online {peer.IsOnline} : {peer.Address.Hostname}");
         }
         
         Console.WriteLine($"END - {uniquePeers.Count}");
