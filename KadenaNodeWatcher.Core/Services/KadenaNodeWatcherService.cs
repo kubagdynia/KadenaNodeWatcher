@@ -108,11 +108,34 @@ internal class KadenaNodeWatcherService(
             string.Compare(peer.Address.Hostname, peer1.Address.Hostname, StringComparison.Ordinal));
         
         Console.WriteLine("IsOnline");
-        foreach (var peer in uniquePeers.Where(c => c.IsOnline is null))
+
+        List<Peer> uniquePeersToCheck = uniquePeers.Where(c => c.IsOnline is null).ToList();
+
+        // Limiting the maximum degree of parallelism to 3
+        ParallelOptions parallelOptions = new()
         {
-            await IsOnline(peer);
+            MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount - 1)
+        };
+        
+        // The code will be executed in parallel by up to three threads
+        await Parallel.ForEachAsync(uniquePeersToCheck, parallelOptions, async (peer, ct) =>
+        {
+            await IsOnline(peer, ct);
             Console.WriteLine($"Online {peer.IsOnline} : {peer.Address.Hostname}");
-        }
+        });
+        
+        List<NodeDbModel> nodeList = uniquePeers.Select(
+            peer => NodeDbModel.CreateNodeDbModel(
+                peer.Address.Ip,
+                peer.Address.Hostname,
+                peer.Address.Port,
+                peer.IsOnline,
+                peer.ChainwebNodeVersion)
+            ).ToList();
+        
+        await nodeRepository.AddNodes(nodeList);
+        
+        Console.WriteLine("Add");
         
         Console.WriteLine($"END - {uniquePeers.Count}");
 
@@ -179,19 +202,20 @@ internal class KadenaNodeWatcherService(
 
         Console.WriteLine($"--------------- {uniquePeers.Count}");
     }
-    
+
     /// <summary>
     /// Check if the node is active under the specified port
     /// </summary>
     /// <param name="peer"></param>
-    private async Task IsOnline(Peer peer)
+    /// <param name="ct">Cancellation token</param>
+    private async Task IsOnline(Peer peer, CancellationToken ct = default)
     {
         if (peer is null) return;
 
         try
         {
             var response =
-                await chainwebNodeService.GetCutAsync($"https://{peer.Address.Hostname}:{peer.Address.Port}");
+                await chainwebNodeService.GetCutAsync($"https://{peer.Address.Hostname}:{peer.Address.Port}", ct);
 
             if (response is null)
             {

@@ -46,9 +46,10 @@ internal class ChainwebNodeService : IChainwebNodeService
     /// Query the current cut from a Chainweb node.
     /// </summary>
     /// <param name="baseAddress"></param>
+    /// <param name="ct">Cancellation Token</param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public async Task<GetCutResponse> GetCutAsync(string baseAddress)
+    public async Task<GetCutResponse> GetCutAsync(string baseAddress, CancellationToken ct = default)
     {
         string requestUri = $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut";
         
@@ -56,7 +57,7 @@ internal class ChainwebNodeService : IChainwebNodeService
 
         try
         {
-            using HttpResponseMessage response = await client.GetAsync(requestUri);
+            using HttpResponseMessage response = await client.GetAsync(requestUri, ct);
 
             if (response.IsSuccessStatusCode)
             {
@@ -65,7 +66,7 @@ internal class ChainwebNodeService : IChainwebNodeService
                     var getCutResponse = new GetCutResponse
                     {
                         ResponseHeaders = _chainwebCommon.GetResponseHeaders(response),
-                        Cut = await response.Content.ReadFromJsonAsync<Cut>()
+                        Cut = await response.Content.ReadFromJsonAsync<Cut>(ct)
                     };
 
                     return getCutResponse;

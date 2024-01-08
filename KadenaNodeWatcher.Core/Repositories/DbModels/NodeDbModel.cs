@@ -15,4 +15,15 @@ internal class NodeDbModel
     public string NodeVersion { get; set; }
         
     public DateTime Timestamp { get; set; }
+
+    public static NodeDbModel CreateNodeDbModel(
+        string ipAddress, string hostname, int? port, bool? isOnline, string nodeVersion)
+        => new()
+        {
+            IpAddress = ipAddress,
+            Hostname = hostname,
+            Port = port,
+            IsOnline = isOnline,
+            NodeVersion = nodeVersion
+        };
 }
