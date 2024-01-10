@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using DbConnectionExtensions.DbConnection.Base;
+using KadenaNodeWatcher.Core.Extensions;
 using KadenaNodeWatcher.Core.Repositories.CommandQueries;
 using KadenaNodeWatcher.Core.Repositories.DbModels;
 
@@ -44,7 +45,7 @@ internal class NodeRepository : INodeRepository
     {
         using var conn = _connectionFactory.Connection();
 
-        var unixTime = GetUtcUnixTimeSeconds(date);
+        var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
 
         object parameters;
             
@@ -104,7 +105,4 @@ internal class NodeRepository : INodeRepository
 
         await Task.CompletedTask;
     }
-
-    private long GetUtcUnixTimeSeconds(DateTime date)
-        => new DateTimeOffset(DateTime.SpecifyKind(date, DateTimeKind.Utc).Date).ToUnixTimeSeconds();
 }

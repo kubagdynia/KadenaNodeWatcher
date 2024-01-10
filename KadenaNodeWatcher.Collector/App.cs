@@ -11,7 +11,7 @@ public class App(IKadenaNodeWatcherService kadenaNodeWatcherService)
     {
         if (runningOptions.CollectNodeDataAutomatically)
         {
-            await kadenaNodeWatcherService.CollectNodeData();
+            await kadenaNodeWatcherService.CollectNodeData(checkIpGeolocation: true);
         }
         else if (!string.IsNullOrEmpty(runningOptions.HostName))
         {

@@ -66,7 +66,7 @@ internal class ChainwebNodeService : IChainwebNodeService
                     var getCutResponse = new GetCutResponse
                     {
                         ResponseHeaders = _chainwebCommon.GetResponseHeaders(response),
-                        Cut = await response.Content.ReadFromJsonAsync<Cut>(ct)
+                        Cut = await response.Content.ReadFromJsonAsync<Cut>(cancellationToken: ct)
                     };
 
                     return getCutResponse;
@@ -98,12 +98,22 @@ internal class ChainwebNodeService : IChainwebNodeService
         return await Task.FromResult<GetCutResponse>(null);
     }
 
-    public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync()
+    /// <summary>
+    /// Returns an object containing the peers from the peer database of the remote node and base node headers
+    /// </summary>
+    /// <returns>Peers from the peer database of the remote node and base node headers</returns>
+    public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(CancellationToken ct = default)
     {
-        return await GetCutNetworkPeerInfoAsync(_baseAddress);
+        return await GetCutNetworkPeerInfoAsync(_baseAddress, ct);
     }
 
-    public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress)
+    /// <summary>
+    /// Returns an object containing the peers from the peer database of the remote node and base node headers
+    /// </summary>
+    /// <param name="baseAddress"></param>
+    /// <param name="ct">Cancellation Token</param>
+    /// <returns>Peers from the peer database of the remote node and base node headers</returns>
+    public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress, CancellationToken ct = default)
     {
         // limit - Maximum number of records that may be returned.
         string requestUri =
@@ -113,7 +123,7 @@ internal class ChainwebNodeService : IChainwebNodeService
 
         try
         {
-            using HttpResponseMessage response = await client.GetAsync(requestUri);
+            using HttpResponseMessage response = await client.GetAsync(requestUri, ct);
 
             if (response.IsSuccessStatusCode)
             {
@@ -122,14 +132,14 @@ internal class ChainwebNodeService : IChainwebNodeService
                     var getCutNetworkPeerInfoResponse = new GetCutNetworkPeerInfoResponse
                     {
                         ResponseHeaders = _chainwebCommon.GetResponseHeaders(response),
-                        Page = await response.Content.ReadFromJsonAsync<Page>()
+                        Page = await response.Content.ReadFromJsonAsync<Page>(cancellationToken: ct)
                     };
                     
                     // check next page if needed
                     if (_appSettings.CheckNextPage)
                     {
                         getCutNetworkPeerInfoResponse.Page.Items.AddRange(
-                            await GetCutNetworkPeerInfoAsync(baseAddress, getCutNetworkPeerInfoResponse.Page.Next));
+                            await GetCutNetworkPeerInfoAsync(baseAddress, getCutNetworkPeerInfoResponse.Page.Next, ct));
                     }
 
                     return getCutNetworkPeerInfoResponse;
@@ -165,10 +175,10 @@ internal class ChainwebNodeService : IChainwebNodeService
     /// Returns peers from the peer database of the remote node
     /// </summary>
     /// <param name="baseAddress"></param>
-    /// <param name="next">The cursor for the next page.
-    /// This value can be found as value of the next property of the previous page.</param>
+    /// <param name="next">The cursor for the next page. This value can be found as value of the next property of the previous page.</param>
+    /// <param name="ct">Cancellation Token</param>
     /// <returns>Peers from the peer database of the remote node</returns>
-    private async Task<List<Peer>> GetCutNetworkPeerInfoAsync(string baseAddress, string next)
+    private async Task<List<Peer>> GetCutNetworkPeerInfoAsync(string baseAddress, string next, CancellationToken ct = default)
     {
         List<Peer> items = new List<Peer>();
 
@@ -182,18 +192,18 @@ internal class ChainwebNodeService : IChainwebNodeService
 
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
-        using HttpResponseMessage peers = await client.GetAsync(requestUri);
+        using HttpResponseMessage peers = await client.GetAsync(requestUri, ct);
             
         if (peers.IsSuccessStatusCode)
         {
-            Page page = await peers.Content.ReadFromJsonAsync<Page>();
+            Page page = await peers.Content.ReadFromJsonAsync<Page>(cancellationToken: ct);
             // Add an array of child peers to the result
             items.AddRange(page.Items);
             // If there is a next page, read this data.
             // Read the following pages until you have read them all.
             if (!string.IsNullOrEmpty(page.Next))
             {
-                items.AddRange(await GetCutNetworkPeerInfoAsync(baseAddress, page.Next));
+                items.AddRange(await GetCutNetworkPeerInfoAsync(baseAddress, page.Next, ct));
             }
         }
 

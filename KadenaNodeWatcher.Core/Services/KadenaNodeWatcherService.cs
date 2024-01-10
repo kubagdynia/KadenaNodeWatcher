@@ -17,7 +17,7 @@ public interface IKadenaNodeWatcherService
 {
     Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false);
 
-    Task CollectNodeData();
+    Task CollectNodeData(bool checkIpGeolocation = false);
 }
 
 internal class KadenaNodeWatcherService(
@@ -72,13 +72,13 @@ internal class KadenaNodeWatcherService(
         return await Task.FromResult(nodeDataResponse);
     }
 
-    public async Task CollectNodeData()
-    { 
-        int count = await nodeRepository.CountNodes(DateTime.Now);
+    public async Task CollectNodeData(bool checkIpGeolocation = false)
+    {
+        int countNodes = await nodeRepository.CountNodes(DateTime.Now);
         
-        if (count > 0)
+        if (countNodes > 0)
         {
-            dbLogger.AddInfoLog($"Nodes info has already been collected today: {count}.",
+            dbLogger.AddInfoLog($"Nodes info has already been collected today: {countNodes}.",
                 DbLoggerOperationType.GetNodesInfo);
             await Task.CompletedTask;
         }
@@ -92,6 +92,7 @@ internal class KadenaNodeWatcherService(
         
         Console.WriteLine($"--------------- {uniquePeers.Count}");
         
+        // Returns a full or partial list of child nodes
         List<Peer> peers = PreparePeers(response.Page.Items);
         
         int peersCount = peers.Count;
@@ -124,6 +125,7 @@ internal class KadenaNodeWatcherService(
             Console.WriteLine($"Online {peer.IsOnline} : {peer.Address.Hostname}");
         });
         
+        // Prepare nodes information to be stored in the database 
         List<NodeDbModel> nodeList = uniquePeers.Select(
             peer => NodeDbModel.CreateNodeDbModel(
                 peer.Address.Ip,
@@ -133,10 +135,24 @@ internal class KadenaNodeWatcherService(
                 peer.ChainwebNodeVersion)
             ).ToList();
         
+        // Saving nodes info in the db
         await nodeRepository.AddNodes(nodeList);
-        
-        Console.WriteLine("Add");
-        
+
+        if (checkIpGeolocation)
+        {
+            foreach (Peer peer in uniquePeers)
+            {
+                if (!await nodeRepository.IpGeolocationExistsAsync(peer.Address.Ip))
+                {
+                    IpGeolocationModel ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(peer.Address.Ip);
+                    if (ipGeolocation is not null)
+                    {
+                        await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
+                    }
+                }
+            }
+        }
+
         Console.WriteLine($"END - {uniquePeers.Count}");
 
         await Task.CompletedTask;
@@ -145,20 +161,25 @@ internal class KadenaNodeWatcherService(
     private List<Peer> PreparePeers(List<Peer> items)
     {
         NetworkConfig networkConfig = _appSettings.GetSelectedNetworkConfig();
-
+        
+        // Sometimes there is a need not to check all the nodes and only a part, which can be selected randomly.
+        // We rely on the configuration that was specified in the ChildNodes section.
+        
         if (items == null || networkConfig?.ChildNodes == null || networkConfig.ChildNodes.Count >= items.Count)
         {
             return items;
         }
 
-        int count = networkConfig.ChildNodes.Count <= 0 ? items.Count : networkConfig.ChildNodes.Count;
+        int numberOfChildNodes = networkConfig.ChildNodes.Count <= 0 ? items.Count : networkConfig.ChildNodes.Count;
 
+        // If this option is enabled then select random child nodes
         if (!networkConfig.ChildNodes.RandomPick)
         {
-            return items.Take(count).ToList();
+            return items.Take(numberOfChildNodes).ToList();
         }
 
-        return items.GetRandomElements(count);
+        // Return random child nodes
+        return items.GetRandomElements(numberOfChildNodes);
     }
     
     private async Task GetUniquePeers(Peer peer, List<Peer> uniquePeers)
