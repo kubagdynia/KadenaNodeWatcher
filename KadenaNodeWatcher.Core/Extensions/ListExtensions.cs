@@ -19,13 +19,26 @@ internal static class ListExtensions
         
     internal static void AddUniqueAddress(this IList<Peer> self, IEnumerable<Peer> items)
     {
-        foreach (var item in items)
+        foreach (Peer item in items)
         {
-            if (self.Any(c => c.Address.Hostname.Equals(item.Address.Hostname)))
+            if (self.Any(peer => peer.Address.Hostname.Equals(item.Address.Hostname)))
             {
                 continue;
             }
-
+    
+            self.Add(item);
+        }
+    }
+    
+    internal static void AddUniqueAddress(this ConcurrentList<Peer> self, IEnumerable<Peer> items)
+    {
+        foreach (Peer item in items)
+        {
+            if (self.Any(peer => peer.Address.Hostname.Equals(item.Address.Hostname)))
+            {
+                continue;
+            }
+    
             self.Add(item);
         }
     }

@@ -9,14 +9,16 @@ public class App(IKadenaNodeWatcherService kadenaNodeWatcherService)
 {
     public async Task Run(RunningOptions runningOptions)
     {
+        using var cts = new CancellationTokenSource();
+        
         if (runningOptions.CollectNodeDataAutomatically)
         {
-            await kadenaNodeWatcherService.CollectNodeData(checkIpGeolocation: true);
+            await kadenaNodeWatcherService.CollectNodeData(checkIpGeolocation: true, cts.Token);
         }
         else if (!string.IsNullOrEmpty(runningOptions.HostName))
         {
             NodeDataResponse nodeDataResult =
-                await kadenaNodeWatcherService.GetNodeData(runningOptions.HostName, runningOptions.CheckIpGeolocation);
+                await kadenaNodeWatcherService.GetNodeData(runningOptions.HostName, runningOptions.CheckIpGeolocation, cts.Token);
 
             Console.WriteLine(JsonSerializer.Serialize(nodeDataResult, JsonSerializerOptions));
         }

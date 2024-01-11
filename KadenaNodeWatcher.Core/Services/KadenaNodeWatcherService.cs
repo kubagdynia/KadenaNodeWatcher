@@ -15,9 +15,9 @@ namespace KadenaNodeWatcher.Core.Services;
 
 public interface IKadenaNodeWatcherService
 {
-    Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false);
+    Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false, CancellationToken ct = default);
 
-    Task CollectNodeData(bool checkIpGeolocation = false);
+    Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default);
 }
 
 internal class KadenaNodeWatcherService(
@@ -30,11 +30,11 @@ internal class KadenaNodeWatcherService(
 {
     private readonly AppSettings _appSettings = appSettings.Value;
 
-    public async Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false)
+    public async Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false, CancellationToken ct = default)
     {
         List<Peer> uniquePeers = [];
 
-        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(hostName);
+        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(hostName, ct);
         uniquePeers.AddRange(response.Page.Items);
         
         string ip = GetIp(hostName);
@@ -72,7 +72,7 @@ internal class KadenaNodeWatcherService(
         return await Task.FromResult(nodeDataResponse);
     }
 
-    public async Task CollectNodeData(bool checkIpGeolocation = false)
+    public async Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default)
     {
         int countNodes = await nodeRepository.CountNodes(DateTime.Now);
         
@@ -85,9 +85,9 @@ internal class KadenaNodeWatcherService(
         
         dbLogger.AddInfoLog("Data collection from nodes has started.", DbLoggerOperationType.GetNodesInfo);
         
-        List<Peer> uniquePeers = [];
+        ConcurrentList<Peer> uniquePeers = [];
         
-        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync();
+        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(ct);
         uniquePeers.AddRange(response.Page.Items);
         
         Console.WriteLine($"--------------- {uniquePeers.Count}");
@@ -95,11 +95,16 @@ internal class KadenaNodeWatcherService(
         // Returns a full or partial list of child nodes
         List<Peer> peers = PreparePeers(response.Page.Items);
         
-        int peersCount = peers.Count;
-        for (int i = 0; i < peersCount; i++)
+        // Limiting the maximum degree of parallelism to 3
+        ParallelOptions parallelOptions = new()
         {
-            await GetUniquePeers(peers[i], uniquePeers);
-        }
+            MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount - 1)
+        };
+        
+        await Parallel.ForEachAsync(peers, parallelOptions, async (peer, _) =>
+        {
+            await GetUniquePeers(peer, uniquePeers, ct);
+        });
 
         Console.WriteLine("AddIpAddress");
         AddIpAddress(uniquePeers);
@@ -111,15 +116,9 @@ internal class KadenaNodeWatcherService(
         Console.WriteLine("IsOnline");
 
         List<Peer> uniquePeersToCheck = uniquePeers.Where(c => c.IsOnline is null).ToList();
-
-        // Limiting the maximum degree of parallelism to 3
-        ParallelOptions parallelOptions = new()
-        {
-            MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount - 1)
-        };
         
         // The code will be executed in parallel by up to three threads
-        await Parallel.ForEachAsync(uniquePeersToCheck, parallelOptions, async (peer, ct) =>
+        await Parallel.ForEachAsync(uniquePeersToCheck, parallelOptions, async (peer, _) =>
         {
             await IsOnline(peer, ct);
             Console.WriteLine($"Online {peer.IsOnline} : {peer.Address.Hostname}");
@@ -182,7 +181,7 @@ internal class KadenaNodeWatcherService(
         return items.GetRandomElements(numberOfChildNodes);
     }
     
-    private async Task GetUniquePeers(Peer peer, List<Peer> uniquePeers)
+    private async Task GetUniquePeers(Peer peer, ConcurrentList<Peer> uniquePeers, CancellationToken ct = default)
     {
         List<Peer> peers = uniquePeers.Where(c => c.Address.Hostname == peer.Address.Hostname).ToList();
         
@@ -191,7 +190,7 @@ internal class KadenaNodeWatcherService(
         {
             response =
                 await chainwebNodeService.GetCutNetworkPeerInfoAsync(
-                    $"https://{peer.Address.Hostname}:{peer.Address.Port}");
+                    $"https://{peer.Address.Hostname}:{peer.Address.Port}", ct);
         }
         catch (Exception)
         {
@@ -254,7 +253,7 @@ internal class KadenaNodeWatcherService(
         }
     }
     
-    private void AddIpAddress(List<Peer> uniquePeers)
+    private void AddIpAddress(ConcurrentList<Peer> uniquePeers)
     {
         foreach (var peer in uniquePeers)
         {
