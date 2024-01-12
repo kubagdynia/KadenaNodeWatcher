@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         
         services.AddTransient<IDbLoggerRepository, DbLoggerRepository>();
         services.AddTransient<IDbLogger, DbLogger>();
+        services.AddTransient<IAppLogger, AppLogger>();
 
         services.AddTransient<IKadenaNodeWatcherService, KadenaNodeWatcherService>();
         

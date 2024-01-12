@@ -3,7 +3,7 @@ namespace KadenaNodeWatcher.Core.Logs.Models;
 public enum DbLoggerOperationType
 {
     None,
-    GetNodesInfo
+    GetNodesData
 }
 
 public static class DbLoggerOperationExtensions

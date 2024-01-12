@@ -25,7 +25,7 @@ internal class KadenaNodeWatcherService(
     IIpGeolocationService ipGeolocationService,
     INodeRepository nodeRepository,
     IOptions<AppSettings> appSettings,
-    IDbLogger dbLogger)
+    IAppLogger appLogger)
     : IKadenaNodeWatcherService
 {
     private readonly AppSettings _appSettings = appSettings.Value;
@@ -74,23 +74,27 @@ internal class KadenaNodeWatcherService(
 
     public async Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default)
     {
+        appLogger.AddInfoLog("START");
+        
         int countNodes = await nodeRepository.CountNodes(DateTime.Now);
         
         if (countNodes > 0)
         {
-            dbLogger.AddInfoLog($"Nodes info has already been collected today: {countNodes}.",
-                DbLoggerOperationType.GetNodesInfo);
+            appLogger.AddInfoLog($"Nodes data has already been collected today: {countNodes}.",
+                DbLoggerOperationType.GetNodesData);
             await Task.CompletedTask;
+            return;
         }
         
-        dbLogger.AddInfoLog("Data collection from nodes has started.", DbLoggerOperationType.GetNodesInfo);
+        appLogger.AddInfoLog("Start collecting data from root node...", DbLoggerOperationType.GetNodesData);
         
         ConcurrentList<Peer> uniquePeers = [];
         
         GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(ct);
         uniquePeers.AddRange(response.Page.Items);
-        
-        Console.WriteLine($"--------------- {uniquePeers.Count}");
+
+        appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}",
+            DbLoggerOperationType.GetNodesData);
         
         // Returns a full or partial list of child nodes
         List<Peer> peers = PreparePeers(response.Page.Items);
@@ -100,29 +104,42 @@ internal class KadenaNodeWatcherService(
         {
             MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount - 1)
         };
+
+        appLogger.AddInfoLog($"Start collecting node data from child nodes...", DbLoggerOperationType.GetNodesData);
         
         await Parallel.ForEachAsync(peers, parallelOptions, async (peer, _) =>
         {
             await GetUniquePeers(peer, uniquePeers, ct);
         });
 
-        Console.WriteLine("AddIpAddress");
+        appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}.",
+            DbLoggerOperationType.GetNodesData);
+        
         AddIpAddress(uniquePeers);
         
-        Console.WriteLine("Sort");
         uniquePeers.Sort((peer, peer1) =>
             string.Compare(peer.Address.Hostname, peer1.Address.Hostname, StringComparison.Ordinal));
         
-        Console.WriteLine("IsOnline");
-
         List<Peer> uniquePeersToCheck = uniquePeers.Where(c => c.IsOnline is null).ToList();
+
+        appLogger.AddInfoLog($"Start checking, whether nodes are online and what is their version...",
+            DbLoggerOperationType.GetNodesData);
+        
+        foreach (var value1 in uniquePeersToCheck)
+        {
+            value1.IsOnline = true;
+        }
         
         // The code will be executed in parallel by up to three threads
         await Parallel.ForEachAsync(uniquePeersToCheck, parallelOptions, async (peer, _) =>
         {
             await IsOnline(peer, ct);
-            Console.WriteLine($"Online {peer.IsOnline} : {peer.Address.Hostname}");
         });
+
+        int online = uniquePeers.Count(c => c.IsOnline.HasValue && c.IsOnline.Value);
+        int offline = uniquePeers.Count - online;
+        appLogger.AddInfoLog($"Finish. Online: {online}, Offline: {offline}",
+            DbLoggerOperationType.GetNodesData);
         
         // Prepare nodes information to be stored in the database 
         List<NodeDbModel> nodeList = uniquePeers.Select(
@@ -139,6 +156,9 @@ internal class KadenaNodeWatcherService(
 
         if (checkIpGeolocation)
         {
+            appLogger.AddInfoLog($"Start checking IP geolocation...",
+                DbLoggerOperationType.GetNodesData);
+            
             foreach (Peer peer in uniquePeers)
             {
                 if (!await nodeRepository.IpGeolocationExistsAsync(peer.Address.Ip))
@@ -152,7 +172,7 @@ internal class KadenaNodeWatcherService(
             }
         }
 
-        Console.WriteLine($"END - {uniquePeers.Count}");
+        appLogger.AddInfoLog($"FINISH - number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
 
         await Task.CompletedTask;
     }
@@ -219,8 +239,6 @@ internal class KadenaNodeWatcherService(
         }
 
         uniquePeers.AddUniqueAddress(response.Page.Items);
-
-        Console.WriteLine($"--------------- {uniquePeers.Count}");
     }
 
     /// <summary>
