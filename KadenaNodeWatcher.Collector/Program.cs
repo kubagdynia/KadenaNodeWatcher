@@ -3,6 +3,7 @@ using KadenaNodeWatcher.Collector;
 using KadenaNodeWatcher.Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 
 var services = new ServiceCollection();
 
@@ -25,6 +26,18 @@ void ConfigureServices()
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
         .AddEnvironmentVariables()
         .Build();
+    
+    // defining Serilog configs
+    Log.Logger = new LoggerConfiguration()
+        .ReadFrom.Configuration(configuration)
+        .Enrich.FromLogContext()
+        .CreateLogger();
+            
+    // configure logging
+    services.AddLogging(builder =>
+    { 
+        builder.AddSerilog();
+    });
     
     services.RegisterCore(configuration, "App");
     services.AddTransient<App>();
