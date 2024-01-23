@@ -41,7 +41,7 @@ internal class NodeRepository : INodeRepository
         await Task.CompletedTask;
     }
 
-    public async Task<int> CountNodes(DateTime date, bool? isOnline = null)
+    public async Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null)
     {
         using var conn = _connectionFactory.Connection();
 
@@ -52,12 +52,11 @@ internal class NodeRepository : INodeRepository
         if (isOnline.HasValue)
         {
             parameters = new { date = unixTime, isOnline };
-            return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.CountNodes(isOnline), parameters);
+            return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.GetNumberOfNodes(isOnline), parameters);
         }
 
         parameters = new { date = unixTime };
-        return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.CountNodes(), parameters);
-
+        return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.GetNumberOfNodes(), parameters);
     }
 
     public async Task<IpGeolocationDb> GetIpGeolocationAsync(string ip)

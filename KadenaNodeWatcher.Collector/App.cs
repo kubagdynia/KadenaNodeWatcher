@@ -10,8 +10,19 @@ public class App(IKadenaNodeWatcherService kadenaNodeWatcherService)
     public async Task Run(RunningOptions runningOptions)
     {
         using var cts = new CancellationTokenSource();
-        
-        if (runningOptions.CollectNodeDataAutomatically)
+
+        if (runningOptions.QueryDatabase)
+        {
+            DateTime date = DateTime.Now;
+            // date format e.g. "2024-01-17"
+            if (!string.IsNullOrEmpty(runningOptions.Date))
+            {
+                date = DateTime.Parse(runningOptions.Date);
+            }
+            int numberOfNodes = await kadenaNodeWatcherService.GetNumberOfNodes(date);
+            Console.WriteLine($"Number of nodes for {date:s} is {numberOfNodes}");
+        }
+        else if (runningOptions.CollectNodeDataAutomatically)
         {
             await kadenaNodeWatcherService.CollectNodeData(checkIpGeolocation: true, cts.Token);
         }

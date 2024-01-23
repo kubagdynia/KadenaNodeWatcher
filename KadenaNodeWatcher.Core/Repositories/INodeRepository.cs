@@ -8,7 +8,7 @@ internal interface INodeRepository
 
     Task AddNodes(IEnumerable<NodeDbModel> nodes);
 
-    Task<int> CountNodes(DateTime date, bool? isOnline = null);
+    Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null);
 
     Task<IpGeolocationDb> GetIpGeolocationAsync(string ip);
 

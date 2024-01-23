@@ -15,4 +15,10 @@ public class RunningOptions
     
     [Option(shortName: 'a', longName: "CollectNodeDataAutomatically", Default  = false, Required = false, HelpText = "Collect node data automatically")]
     public bool CollectNodeDataAutomatically { get; set; }
+    
+    [Option(shortName: 'q', longName: "QueryDatabase", Default = false, Required = false, HelpText = "Return data from the database")]
+    public bool QueryDatabase { get; set; }
+    
+    [Option(shortName: 'd', longName: "Date", Required = false, HelpText = "Date")]
+    public string? Date { get; set; }
 }

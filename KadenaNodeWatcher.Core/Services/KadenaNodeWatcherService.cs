@@ -18,6 +18,8 @@ public interface IKadenaNodeWatcherService
     Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false, CancellationToken ct = default);
 
     Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default);
+
+    Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null);
 }
 
 internal class KadenaNodeWatcherService(
@@ -76,11 +78,11 @@ internal class KadenaNodeWatcherService(
     {
         appLogger.AddInfoLog("START");
         
-        int countNodes = await nodeRepository.CountNodes(DateTime.Now);
+        int numberOfNodes = await nodeRepository.GetNumberOfNodes(DateTime.Now);
         
-        if (countNodes > 0)
+        if (numberOfNodes > 0)
         {
-            appLogger.AddInfoLog($"Nodes data has already been collected today: {countNodes}.",
+            appLogger.AddInfoLog($"Nodes data has already been collected today: {numberOfNodes}.",
                 DbLoggerOperationType.GetNodesData);
             await Task.CompletedTask;
             return;
@@ -176,7 +178,12 @@ internal class KadenaNodeWatcherService(
 
         await Task.CompletedTask;
     }
-    
+
+    public async Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null)
+    {
+        return await nodeRepository.GetNumberOfNodes(dateTime, isOnline);
+    }
+
     private List<Peer> PreparePeers(List<Peer> items)
     {
         NetworkConfig networkConfig = _appSettings.GetSelectedNetworkConfig();

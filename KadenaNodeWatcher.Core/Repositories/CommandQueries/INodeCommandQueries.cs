@@ -4,7 +4,7 @@ internal interface INodeCommandQueries
 {
     string AddNode { get; }
 
-    string CountNodes(bool? isOnline = null);
+    string GetNumberOfNodes(bool? isOnline = null);
     
     string IpGeolocationExists { get; }
     
