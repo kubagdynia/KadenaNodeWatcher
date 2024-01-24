@@ -1,0 +1,6 @@
+@KadenaNodeWatcher.Api_HostAddress = http://localhost:5190
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/numberOfNodes/2024-01-24
+Accept: application/json
+
+###

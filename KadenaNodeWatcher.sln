@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbConnectionExtensions", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KadenaNodeWatcher.Collector", "KadenaNodeWatcher.Collector\KadenaNodeWatcher.Collector.csproj", "{366B00EE-4179-46E3-A2CE-46038DEDFA4C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KadenaNodeWatcher.Api", "KadenaNodeWatcher.Api\KadenaNodeWatcher.Api.csproj", "{323F7C77-BF87-40A5-9277-A1561FC7CED7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{366B00EE-4179-46E3-A2CE-46038DEDFA4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{366B00EE-4179-46E3-A2CE-46038DEDFA4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{366B00EE-4179-46E3-A2CE-46038DEDFA4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{323F7C77-BF87-40A5-9277-A1561FC7CED7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{323F7C77-BF87-40A5-9277-A1561FC7CED7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{323F7C77-BF87-40A5-9277-A1561FC7CED7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{323F7C77-BF87-40A5-9277-A1561FC7CED7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

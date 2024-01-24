@@ -9,11 +9,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageReference Include="Dapper" Version="2.1.24" />
-    <PackageReference Include="Polly" Version="8.2.0" />
+    <PackageReference Include="Dapper" Version="2.1.28" />
+    <PackageReference Include="Polly" Version="8.2.1" />
     <PackageReference Include="JK.IpGeolocation" Version="0.1.1" />
   </ItemGroup>
   
