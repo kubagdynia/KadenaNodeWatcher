@@ -39,7 +39,7 @@ void ConfigureServices()
         builder.AddSerilog();
     });
     
-    services.RegisterCore(configuration, "App");
+    services.RegisterCore(configuration);
     services.AddTransient<App>();
 }
 

@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Configuration;
 
-public class AppSettings
+public class ChainwebSettings
 {
     public int PageLimit { get; set; }
 

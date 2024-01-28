@@ -17,17 +17,18 @@ namespace KadenaNodeWatcher.Core.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void RegisterCore(this IServiceCollection services, IConfiguration configuration, string configurationSectionName = null)
+    public static void RegisterCore(this IServiceCollection services, IConfiguration configuration, string chainwebConfigSectionName = "Chainweb")
     {
-        if (configuration is not null)
-        {
-            if (!string.IsNullOrEmpty(configurationSectionName))
-            {
-                services.Configure<AppSettings>(configuration.GetSection(configurationSectionName));
-            }
+        IConfigurationSection chainwebConfig = configuration.GetSection(chainwebConfigSectionName);
 
-            services.AddSingleton(configuration);
+        if (!chainwebConfig.Exists())
+        {
+            // Create default configuration
+            chainwebConfig = DefaultChainwebConfig.GetDefaultChainwebConfig(chainwebConfigSectionName);
         }
+        
+        services.Configure<ChainwebSettings>(chainwebConfig);
+        services.AddSingleton(configuration);
         
         services.AddSingleton<IChainwebCommon, ChainwebCommon>();
         services.AddSingleton<IChainwebNodeService, ChainwebNodeService>();

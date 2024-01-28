@@ -26,11 +26,11 @@ internal class KadenaNodeWatcherService(
     IChainwebNodeService chainwebNodeService,
     IIpGeolocationService ipGeolocationService,
     INodeRepository nodeRepository,
-    IOptions<AppSettings> appSettings,
+    IOptions<ChainwebSettings> chainwebSettings,
     IAppLogger appLogger)
     : IKadenaNodeWatcherService
 {
-    private readonly AppSettings _appSettings = appSettings.Value;
+    private readonly ChainwebSettings _chainwebSettings = chainwebSettings.Value;
 
     public async Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false, CancellationToken ct = default)
     {
@@ -186,7 +186,7 @@ internal class KadenaNodeWatcherService(
 
     private List<Peer> PreparePeers(List<Peer> items)
     {
-        NetworkConfig networkConfig = _appSettings.GetSelectedNetworkConfig();
+        NetworkConfig networkConfig = _chainwebSettings.GetSelectedNetworkConfig();
         
         // Sometimes there is a need not to check all the nodes and only a part, which can be selected randomly.
         // We rely on the configuration that was specified in the ChildNodes section.

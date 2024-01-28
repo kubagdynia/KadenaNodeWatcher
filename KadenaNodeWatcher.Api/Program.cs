@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.RegisterCore(builder.Configuration, "App");
+builder.Services.RegisterCore(builder.Configuration);
 
 var app = builder.Build();
 
@@ -19,12 +19,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/numberOfNodes/{date:datetime}",
-        async (DateTime date, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
+app.MapGet("/numberOfNodes/{date:datetime}", async //Task<Results<Ok<int>, BadRequest<string>>>
+        (DateTime date, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
         {
             int numberOfNodes = await kadenaNodeWatcherService.GetNumberOfNodes(date);
-            return numberOfNodes;
-
+            return TypedResults.Ok(numberOfNodes);
         })
     .WithName("GetNumberOfNodes")
     .WithOpenApi();

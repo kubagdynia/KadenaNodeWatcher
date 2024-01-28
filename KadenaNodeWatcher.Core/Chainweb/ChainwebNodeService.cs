@@ -12,7 +12,7 @@ internal class ChainwebNodeService : IChainwebNodeService
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger<ChainwebNodeService> _logger;
-    private readonly AppSettings _appSettings;
+    private readonly ChainwebSettings _chainwebSettings;
     private readonly IChainwebCommon _chainwebCommon;
     
     private readonly NodeVersion _nodeVersion;
@@ -22,21 +22,21 @@ internal class ChainwebNodeService : IChainwebNodeService
 
     public ChainwebNodeService(
         IHttpClientFactory clientFactory,
-        IOptions<AppSettings> appSettings,
+        IOptions<ChainwebSettings> chainwebSettings,
         ILogger<ChainwebNodeService> logger,
         IChainwebCommon chainwebCommon)
     {
         _clientFactory = clientFactory;
         _logger = logger;
-        _appSettings = appSettings.Value;
+        _chainwebSettings = chainwebSettings.Value;
         _chainwebCommon = chainwebCommon;
         
-        NetworkConfig networkConfig = _appSettings.GetSelectedNetworkConfig();
+        NetworkConfig networkConfig = _chainwebSettings.GetSelectedNetworkConfig();
         
         _nodeVersion = networkConfig.NodeVersion;
         _nodeApiVersion = networkConfig.NodeApiVersion;
         
-        string node = _appSettings.GetSelectedRootNode();
+        string node = _chainwebSettings.GetSelectedRootNode();
         _logger.LogInformation($"Selected root node: {node}.");
         
         _baseAddress = node;
@@ -117,7 +117,7 @@ internal class ChainwebNodeService : IChainwebNodeService
     {
         // limit - Maximum number of records that may be returned.
         string requestUri =
-            $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_appSettings.PageLimit}";
+            $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_chainwebSettings.PageLimit}";
         
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
@@ -136,7 +136,7 @@ internal class ChainwebNodeService : IChainwebNodeService
                     };
                     
                     // check next page if needed
-                    if (_appSettings.CheckNextPage)
+                    if (_chainwebSettings.CheckNextPage)
                     {
                         getCutNetworkPeerInfoResponse.Page.Items.AddRange(
                             await GetCutNetworkPeerInfoAsync(baseAddress, getCutNetworkPeerInfoResponse.Page.Next, ct));
@@ -188,7 +188,7 @@ internal class ChainwebNodeService : IChainwebNodeService
         }
 
         string requestUri =
-            $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_appSettings.PageLimit}&next={next}";
+            $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_chainwebSettings.PageLimit}&next={next}";
 
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
