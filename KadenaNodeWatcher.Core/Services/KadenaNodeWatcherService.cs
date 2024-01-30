@@ -6,6 +6,7 @@ using KadenaNodeWatcher.Core.Extensions;
 using KadenaNodeWatcher.Core.Logs;
 using KadenaNodeWatcher.Core.Logs.Models;
 using KadenaNodeWatcher.Core.Models;
+using KadenaNodeWatcher.Core.Models.Dto;
 using KadenaNodeWatcher.Core.Models.NodeData;
 using KadenaNodeWatcher.Core.Repositories;
 using KadenaNodeWatcher.Core.Repositories.DbModels;
@@ -20,6 +21,8 @@ public interface IKadenaNodeWatcherService
     Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default);
 
     Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null);
+
+    Task<IEnumerable<NodeDataDto>> GetNodes(DateTime date);
 }
 
 internal class KadenaNodeWatcherService(
@@ -182,6 +185,23 @@ internal class KadenaNodeWatcherService(
     public async Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null)
     {
         return await nodeRepository.GetNumberOfNodes(dateTime, isOnline);
+    }
+
+    public async Task<IEnumerable<NodeDataDto>> GetNodes(DateTime date)
+    {
+        IEnumerable<NodeDbModel> nodes = await nodeRepository.GetNodes(date);
+        
+        List<NodeDataDto> resultList = nodes.Select(
+            node => NodeDataDto.Create(
+                node.Id,
+                node.IpAddress,
+                node.Hostname,
+                node.Port,
+                node.IsOnline,
+                node.NodeVersion)
+        ).ToList();
+
+        return resultList;
     }
 
     private List<Peer> PreparePeers(List<Peer> items)

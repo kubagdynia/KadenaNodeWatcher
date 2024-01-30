@@ -4,3 +4,7 @@ GET {{KadenaNodeWatcher.Api_HostAddress}}/numberOfNodes/2024-01-24
 Accept: application/json
 
 ###
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/nodes?date=2024-01-30
+
+###

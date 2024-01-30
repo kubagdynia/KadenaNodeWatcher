@@ -6,6 +6,8 @@ internal interface INodeCommandQueries
 
     string GetNumberOfNodes(bool? isOnline = null);
     
+    string GetNodes();
+    
     string IpGeolocationExists { get; }
     
     string GetIpGeolocation { get; }

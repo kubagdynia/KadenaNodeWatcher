@@ -1,6 +1,6 @@
-﻿namespace KadenaNodeWatcher.Core.Repositories.DbModels;
+namespace KadenaNodeWatcher.Core.Models.Dto;
 
-internal class NodeDbModel
+public class NodeDataDto
 {
     public int Id { get; set; }
 
@@ -14,10 +14,11 @@ internal class NodeDbModel
         
     public string NodeVersion { get; set; }
 
-    public static NodeDbModel CreateNodeDbModel(
-        string ipAddress, string hostname, int? port, bool? isOnline, string nodeVersion)
+    public static NodeDataDto Create(
+        int id, string ipAddress, string hostname, int? port, bool? isOnline, string nodeVersion)
         => new()
         {
+            Id = id,
             IpAddress = ipAddress,
             Hostname = hostname,
             Port = port,

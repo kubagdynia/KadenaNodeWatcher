@@ -1,4 +1,5 @@
 using KadenaNodeWatcher.Core.Extensions;
+using KadenaNodeWatcher.Core.Models.Dto;
 using KadenaNodeWatcher.Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,17 @@ app.MapGet("/numberOfNodes/{date:datetime}", async //Task<Results<Ok<int>, BadRe
             return TypedResults.Ok(numberOfNodes);
         })
     .WithName("GetNumberOfNodes")
+    .WithOpenApi();
+
+app.MapGet("/nodes",
+        async (DateTime? date, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
+        {
+            date ??= DateTime.Now;
+            
+            IEnumerable<NodeDataDto> nodes = await kadenaNodeWatcherService.GetNodes(date.Value);
+            return TypedResults.Ok(nodes);
+        })
+    .WithName("GetNodes")
     .WithOpenApi();
 
 app.Run();

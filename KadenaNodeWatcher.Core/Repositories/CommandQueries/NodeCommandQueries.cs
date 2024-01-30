@@ -10,6 +10,9 @@ internal class NodeCommandQueries : INodeCommandQueries
             ? "SELECT count(*) FROM Nodes WHERE Created = @date AND IsOnline = @isOnline"
             : "SELECT count(*) FROM Nodes WHERE Created = @date";
 
+    public string GetNodes()
+        => "SELECT * FROM Nodes WHERE Created = @date";
+
     public string IpGeolocationExists
         => "SELECT EXISTS (SELECT 1 FROM IpGeolocation WHERE IpAddress = @IpAddress)";
 

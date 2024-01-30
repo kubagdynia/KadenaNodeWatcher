@@ -10,6 +10,8 @@ internal interface INodeRepository
 
     Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null);
 
+    Task<IEnumerable<NodeDbModel>> GetNodes(DateTime date);
+
     Task<IpGeolocationDb> GetIpGeolocationAsync(string ip);
 
     Task<bool> IpGeolocationExistsAsync(string ip);

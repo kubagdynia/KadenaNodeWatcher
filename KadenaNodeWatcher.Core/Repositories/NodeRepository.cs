@@ -59,6 +59,20 @@ internal class NodeRepository : INodeRepository
         return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.GetNumberOfNodes(), parameters);
     }
 
+    public async Task<IEnumerable<NodeDbModel>> GetNodes(DateTime date)
+    {
+        using var conn = _connectionFactory.Connection();
+
+        var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
+        
+        object parameters = new { date = unixTime };
+
+        IEnumerable<NodeDbModel> nodes =
+            await conn.QueryAsync<NodeDbModel>(_nodeCommandQueries.GetNodes(), parameters);
+
+        return nodes;
+    }
+
     public async Task<IpGeolocationDb> GetIpGeolocationAsync(string ip)
     {
         if (string.IsNullOrEmpty(ip))
