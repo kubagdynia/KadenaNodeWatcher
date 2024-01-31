@@ -20,10 +20,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/numberOfNodes/{date:datetime}", async //Task<Results<Ok<int>, BadRequest<string>>>
-        (DateTime date, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
+app.MapGet("/numberOfNodes", async //Task<Results<Ok<int>, BadRequest<string>>>
+        (DateTime? date, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
         {
-            int numberOfNodes = await kadenaNodeWatcherService.GetNumberOfNodes(date);
+            date ??= DateTime.Now;
+            
+            int numberOfNodes = await kadenaNodeWatcherService.GetNumberOfNodes(date.Value);
             return TypedResults.Ok(numberOfNodes);
         })
     .WithName("GetNumberOfNodes")
@@ -34,7 +36,7 @@ app.MapGet("/nodes",
         {
             date ??= DateTime.Now;
             
-            IEnumerable<NodeDataDto> nodes = await kadenaNodeWatcherService.GetNodes(date.Value);
+            IEnumerable<FullNodeDataDto> nodes = await kadenaNodeWatcherService.GetNodes(date.Value);
             return TypedResults.Ok(nodes);
         })
     .WithName("GetNodes")

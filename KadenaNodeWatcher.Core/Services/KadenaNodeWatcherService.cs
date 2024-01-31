@@ -22,7 +22,7 @@ public interface IKadenaNodeWatcherService
 
     Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null);
 
-    Task<IEnumerable<NodeDataDto>> GetNodes(DateTime date);
+    Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date);
 }
 
 internal class KadenaNodeWatcherService(
@@ -187,18 +187,26 @@ internal class KadenaNodeWatcherService(
         return await nodeRepository.GetNumberOfNodes(dateTime, isOnline);
     }
 
-    public async Task<IEnumerable<NodeDataDto>> GetNodes(DateTime date)
+    public async Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date)
     {
-        IEnumerable<NodeDbModel> nodes = await nodeRepository.GetNodes(date);
+        IEnumerable<FullNodeDataDb> nodes = await nodeRepository.GetNodes(date);
         
-        List<NodeDataDto> resultList = nodes.Select(
-            node => NodeDataDto.Create(
-                node.Id,
-                node.IpAddress,
-                node.Hostname,
-                node.Port,
-                node.IsOnline,
-                node.NodeVersion)
+        List<FullNodeDataDto> resultList = nodes.Select(
+            node => new FullNodeDataDto
+            {
+                Id = node.Id,
+                Created = node.Created.UnixTimeToUtcDateTime(),
+                IpAddress = node.IpAddress,
+                Hostname = node.Hostname,
+                Port = node.Port,
+                IsOnline = node.IsOnline,
+                NodeVersion = node.NodeVersion,
+                CountryName = node.CountryName,
+                CountryCode = node.CountryCode,
+                City = node.City,
+                ContinentCode = node.ContinentCode,
+                Org = node.Org
+            }
         ).ToList();
 
         return resultList;

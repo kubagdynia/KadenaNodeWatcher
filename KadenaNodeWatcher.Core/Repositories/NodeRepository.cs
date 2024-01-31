@@ -6,35 +6,27 @@ using KadenaNodeWatcher.Core.Repositories.DbModels;
 
 namespace KadenaNodeWatcher.Core.Repositories;
 
-internal class NodeRepository : INodeRepository
+internal class NodeRepository(IDbConnectionFactory connectionFactory, INodeCommandQueries nodeCommandQueries)
+    : INodeRepository
 {
-    private readonly IDbConnectionFactory _connectionFactory;
-    private readonly INodeCommandQueries _nodeCommandQueries;
-
-    public NodeRepository(IDbConnectionFactory connectionFactory, INodeCommandQueries nodeCommandQueries)
-    {
-        _connectionFactory = connectionFactory;
-        _nodeCommandQueries = nodeCommandQueries;
-    }
-
     public async Task AddNode(NodeDbModel node)
     {
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
 
-        await conn.ExecuteAsync(_nodeCommandQueries.AddNode, node);
+        await conn.ExecuteAsync(nodeCommandQueries.AddNode, node);
 
         await Task.CompletedTask;
     }
 
     public async Task AddNodes(IEnumerable<NodeDbModel> nodes)
     {
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
             
         conn.Open();
 
         var sqlTransaction = conn.BeginTransaction();
 
-        await conn.ExecuteAsync(_nodeCommandQueries.AddNode, nodes, transaction: sqlTransaction);
+        await conn.ExecuteAsync(nodeCommandQueries.AddNode, nodes, transaction: sqlTransaction);
 
         sqlTransaction.Commit();
 
@@ -43,7 +35,7 @@ internal class NodeRepository : INodeRepository
 
     public async Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null)
     {
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
 
         var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
 
@@ -52,23 +44,23 @@ internal class NodeRepository : INodeRepository
         if (isOnline.HasValue)
         {
             parameters = new { date = unixTime, isOnline };
-            return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.GetNumberOfNodes(isOnline), parameters);
+            return await conn.QueryFirstOrDefaultAsync<int>(nodeCommandQueries.GetNumberOfNodes(isOnline), parameters);
         }
 
         parameters = new { date = unixTime };
-        return await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.GetNumberOfNodes(), parameters);
+        return await conn.QueryFirstOrDefaultAsync<int>(nodeCommandQueries.GetNumberOfNodes(), parameters);
     }
 
-    public async Task<IEnumerable<NodeDbModel>> GetNodes(DateTime date)
+    public async Task<IEnumerable<FullNodeDataDb>> GetNodes(DateTime date)
     {
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
 
         var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
         
         object parameters = new { date = unixTime };
 
-        IEnumerable<NodeDbModel> nodes =
-            await conn.QueryAsync<NodeDbModel>(_nodeCommandQueries.GetNodes(), parameters);
+        IEnumerable<FullNodeDataDb> nodes =
+            await conn.QueryAsync<FullNodeDataDb>(nodeCommandQueries.GetNodes(), parameters);
 
         return nodes;
     }
@@ -80,21 +72,21 @@ internal class NodeRepository : INodeRepository
             return await Task.FromResult<IpGeolocationDb>(null);
         }
         
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
 
         IpGeolocationDb ipGeolocationDb =
             await conn.QueryFirstOrDefaultAsync<IpGeolocationDb>(
-                _nodeCommandQueries.GetIpGeolocation, new { IpAddress = ip });
+                nodeCommandQueries.GetIpGeolocation, new { IpAddress = ip });
 
         return ipGeolocationDb;
     }
 
     public async Task<bool> IpGeolocationExistsAsync(string ip)
     {
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
 
         var exists =
-            await conn.QueryFirstOrDefaultAsync<int>(_nodeCommandQueries.IpGeolocationExists, new { IpAddress = ip });
+            await conn.QueryFirstOrDefaultAsync<int>(nodeCommandQueries.IpGeolocationExists, new { IpAddress = ip });
 
         return exists == 1;
     }
@@ -106,13 +98,13 @@ internal class NodeRepository : INodeRepository
             await Task.CompletedTask;
         }
         
-        using var conn = _connectionFactory.Connection();
+        using var conn = connectionFactory.Connection();
             
         conn.Open();
 
         var sqlTransaction = conn.BeginTransaction();
 
-        await conn.ExecuteAsync(_nodeCommandQueries.AddIpGeolocation, ipGeolocation, transaction: sqlTransaction);
+        await conn.ExecuteAsync(nodeCommandQueries.AddIpGeolocation, ipGeolocation, transaction: sqlTransaction);
 
         sqlTransaction.Commit();
 
