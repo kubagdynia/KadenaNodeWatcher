@@ -5,8 +5,10 @@ internal interface INodeCommandQueries
     string AddNode { get; }
 
     string GetNumberOfNodes(bool? isOnline = null);
+
+    string GetNumberOfNodesGroupedByCountry(bool? isOnline = null);
     
-    string GetNodes();
+    string GetNodes(bool? isOnline = null);
     
     string IpGeolocationExists { get; }
     

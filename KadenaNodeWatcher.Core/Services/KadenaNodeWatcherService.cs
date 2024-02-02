@@ -14,17 +14,6 @@ using Microsoft.Extensions.Options;
 
 namespace KadenaNodeWatcher.Core.Services;
 
-public interface IKadenaNodeWatcherService
-{
-    Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false, CancellationToken ct = default);
-
-    Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default);
-
-    Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null);
-
-    Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date);
-}
-
 internal class KadenaNodeWatcherService(
     IChainwebNodeService chainwebNodeService,
     IIpGeolocationService ipGeolocationService,
@@ -187,9 +176,26 @@ internal class KadenaNodeWatcherService(
         return await nodeRepository.GetNumberOfNodes(dateTime, isOnline);
     }
 
-    public async Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date)
+    public async Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(
+        DateTime dateTime, bool? isOnline = null)
     {
-        IEnumerable<FullNodeDataDb> nodes = await nodeRepository.GetNodes(date);
+        IEnumerable<NumberOfNodesGroupedByCountryDb> nodesGroupedByCountry =
+            await nodeRepository.GetNumberOfNodesGroupedByCountry(dateTime, isOnline);
+
+        List<NumberOfNodesGroupedByCountryDto> resultList = nodesGroupedByCountry.Select(
+            item => new NumberOfNodesGroupedByCountryDto
+            {
+                CountryName = item.CountryName,
+                CountryCode = item.CountryCode,
+                Count = item.Count
+            }).ToList();
+
+        return resultList;
+    }
+
+    public async Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date, bool? isOnline = null)
+    {
+        IEnumerable<FullNodeDataDb> nodes = await nodeRepository.GetNodes(date, isOnline);
         
         List<FullNodeDataDto> resultList = nodes.Select(
             node => new FullNodeDataDto

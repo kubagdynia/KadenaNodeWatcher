@@ -6,8 +6,8 @@ using KadenaNodeWatcher.Core.Repositories.DbModels;
 
 namespace KadenaNodeWatcher.Core.Repositories;
 
-internal class NodeRepository(IDbConnectionFactory connectionFactory, INodeCommandQueries nodeCommandQueries)
-    : INodeRepository
+internal class NodeRepository(
+    IDbConnectionFactory connectionFactory, INodeCommandQueries nodeCommandQueries) : INodeRepository
 {
     public async Task AddNode(NodeDbModel node)
     {
@@ -51,18 +51,43 @@ internal class NodeRepository(IDbConnectionFactory connectionFactory, INodeComma
         return await conn.QueryFirstOrDefaultAsync<int>(nodeCommandQueries.GetNumberOfNodes(), parameters);
     }
 
-    public async Task<IEnumerable<FullNodeDataDb>> GetNodes(DateTime date)
+    public async Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(
+        DateTime date, bool? isOnline = null)
+    {
+        using var conn = connectionFactory.Connection();
+
+        var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
+
+        object parameters;
+
+        if (isOnline.HasValue)
+        {
+            parameters = new { date = unixTime, isOnline };
+            return await conn.QueryAsync<NumberOfNodesGroupedByCountryDb>(
+                nodeCommandQueries.GetNumberOfNodesGroupedByCountry(isOnline), parameters);
+        }
+
+        parameters = new { date = unixTime };
+        return await conn.QueryAsync<NumberOfNodesGroupedByCountryDb>(
+            nodeCommandQueries.GetNumberOfNodesGroupedByCountry(), parameters);
+    }
+
+    public async Task<IEnumerable<FullNodeDataDb>> GetNodes(DateTime date, bool? isOnline = null)
     {
         using var conn = connectionFactory.Connection();
 
         var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
         
-        object parameters = new { date = unixTime };
+        object parameters;
 
-        IEnumerable<FullNodeDataDb> nodes =
-            await conn.QueryAsync<FullNodeDataDb>(nodeCommandQueries.GetNodes(), parameters);
-
-        return nodes;
+        if (isOnline.HasValue)
+        {
+            parameters = new { date = unixTime, isOnline };
+            return await conn.QueryAsync<FullNodeDataDb>(nodeCommandQueries.GetNodes(isOnline), parameters);
+        }
+        
+        parameters = new { date = unixTime };
+        return await conn.QueryAsync<FullNodeDataDb>(nodeCommandQueries.GetNodes(), parameters);
     }
 
     public async Task<IpGeolocationDb> GetIpGeolocationAsync(string ip)

@@ -1,10 +1,36 @@
 @KadenaNodeWatcher.Api_HostAddress = http://localhost:5190
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/numberOfNodes?date=2024-01-30
+### Get nodes
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes?date=2024-01-31
 Accept: application/json
 
-###
+### Get number of nodes
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/nodes?date=2024-01-30
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?date=2024-01-30
+Accept: application/json
 
-###
+### Get number of nodes - online
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?date=2024-01-30&isOnline=true
+Accept: application/json
+
+### Get number of nodes - offline
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?date=2024-01-30&isOnline=false
+Accept: application/json
+
+### Get number of nodes grouped by country
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/countries/count?date=2024-01-30
+Accept: application/json
+
+### Get number of nodes grouped by country - online
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/countries/count?date=2024-01-30&isOnline=true
+Accept: application/json
+
+### Get number of nodes grouped by country - offline
+
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/countries/count?date=2024-01-30&isOnline=false
+Accept: application/json
