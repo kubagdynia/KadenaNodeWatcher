@@ -41,16 +41,19 @@ nodesEndpoints.MapGet("/nodes", async Task<Results<Ok<IEnumerable<FullNodeDataDt
     .WithSummary("Get full nodes data for a specific date.")
     .WithOpenApi();
 
-nodesEndpoints.MapGet("/nodes/count", async Task<Results<Ok<int>, BadRequest>>
-        (DateTime? date, bool? isOnline, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
+nodesEndpoints.MapGet("/nodes/count", async Task<Results<Ok<IEnumerable<NumberOfNodesGroupedByDatesDto>>, NotFound, BadRequest>>
+        (DateTime? dateFrom, DateTime? dateTo, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
     {
-        date ??= DateTime.Now;
+        dateFrom ??= DateTime.Now;
+        dateTo ??= dateFrom;
 
-        int numberOfNodes = await kadenaNodeWatcherService.GetNumberOfNodes(date.Value, isOnline);
-        return TypedResults.Ok(numberOfNodes);
+        IEnumerable<NumberOfNodesGroupedByDatesDto> numberOfNodesGroupedByDates =
+            (await kadenaNodeWatcherService.GetNumberOfNodesGroupedByDates(dateFrom.Value, dateTo.Value)).ToList();
+        
+        return !numberOfNodesGroupedByDates.Any() ? TypedResults.NotFound() : TypedResults.Ok(numberOfNodesGroupedByDates);
     })
-    .WithName("GetNumberOfNodes")
-    .WithSummary("Get number of nodes for a specific date.")
+    .WithName("GetNumberOfNodesGroupedByDates")
+    .WithSummary("Get number of nodes grouped by dates.")
     .WithOpenApi();
 
 nodesEndpoints.MapGet("/nodes/countries/count", async Task<Results<Ok<IEnumerable<NumberOfNodesGroupedByCountryDto>>, NotFound, BadRequest>>

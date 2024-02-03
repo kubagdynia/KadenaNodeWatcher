@@ -5,19 +5,9 @@
 GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes?date=2024-01-31
 Accept: application/json
 
-### Get number of nodes
+### Get number of nodes grouped by dates
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?date=2024-01-30
-Accept: application/json
-
-### Get number of nodes - online
-
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?date=2024-01-30&isOnline=true
-Accept: application/json
-
-### Get number of nodes - offline
-
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?date=2024-01-30&isOnline=false
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?dateFrom=2024-01-30&dateTo=2024-02-03
 Accept: application/json
 
 ### Get number of nodes grouped by country

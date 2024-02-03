@@ -10,6 +10,8 @@ public interface IKadenaNodeWatcherService
     Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default);
 
     Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null);
+
+    Task<IEnumerable<NumberOfNodesGroupedByDatesDto>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo);
     
     Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(DateTime dateTime, bool? isOnline = null);
 

@@ -9,6 +9,8 @@ internal interface INodeRepository
     Task AddNodes(IEnumerable<NodeDbModel> nodes);
 
     Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null);
+
+    Task<IEnumerable<NumberOfNodesGroupedByDatesDb>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo);
     
     Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(DateTime date, bool? isOnline = null);
 

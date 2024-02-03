@@ -176,6 +176,23 @@ internal class KadenaNodeWatcherService(
         return await nodeRepository.GetNumberOfNodes(dateTime, isOnline);
     }
 
+    public async Task<IEnumerable<NumberOfNodesGroupedByDatesDto>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo)
+    {
+        IEnumerable<NumberOfNodesGroupedByDatesDb> numberOfNodesGroupdeByDates =
+            await nodeRepository.GetNumberOfNodesGroupedByDates(dateFrom, dateTo);
+        
+        List<NumberOfNodesGroupedByDatesDto> resultList = numberOfNodesGroupdeByDates.Select(
+            item => new NumberOfNodesGroupedByDatesDto
+            {
+                Date = item.Date.UnixTimeToUtcDateTime(),
+                TotalCount = item.TotalCount,
+                Online = item.Online,
+                Offline = item.Offline
+            }).ToList();
+
+        return resultList;
+    }
+
     public async Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(
         DateTime dateTime, bool? isOnline = null)
     {

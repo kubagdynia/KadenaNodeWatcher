@@ -36,9 +36,9 @@ internal class NodeRepository(
     public async Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null)
     {
         using var conn = connectionFactory.Connection();
-
+    
         var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
-
+    
         object parameters;
             
         if (isOnline.HasValue)
@@ -46,11 +46,24 @@ internal class NodeRepository(
             parameters = new { date = unixTime, isOnline };
             return await conn.QueryFirstOrDefaultAsync<int>(nodeCommandQueries.GetNumberOfNodes(isOnline), parameters);
         }
-
+    
         parameters = new { date = unixTime };
         return await conn.QueryFirstOrDefaultAsync<int>(nodeCommandQueries.GetNumberOfNodes(), parameters);
     }
+    
+    public async Task<IEnumerable<NumberOfNodesGroupedByDatesDb>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo)
+    {
+        using var conn = connectionFactory.Connection();
 
+        var unixTimeFrom = dateFrom.ToUnixTimeSecondsWithoutMinutes();
+        var unixTimeTo = dateTo.ToUnixTimeSecondsWithoutMinutes();
+        
+        object parameters = new { dateFrom = unixTimeFrom, dateTo =  unixTimeTo };
+        
+        return await conn.QueryAsync<NumberOfNodesGroupedByDatesDb>(
+            nodeCommandQueries.GetNumberOfNodesGroupedByDates(), parameters);
+    }
+    
     public async Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(
         DateTime date, bool? isOnline = null)
     {

@@ -5,6 +5,8 @@ internal interface INodeCommandQueries
     string AddNode { get; }
 
     string GetNumberOfNodes(bool? isOnline = null);
+    
+    string GetNumberOfNodesGroupedByDates();
 
     string GetNumberOfNodesGroupedByCountry(bool? isOnline = null);
     
