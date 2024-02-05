@@ -25,8 +25,7 @@ internal class NodeDbConnectionFactory : SqliteDbConnectionFactory
 	                    Port                                INTEGER NULL,
                         IsOnline                            BOOLEAN NULL,
                         NodeVersion                         VARCHAR(10) NULL,
-                        Created 							DATE DEFAULT (strftime('%s', date('now'))),
-                        Timestamp 							DATE DEFAULT (strftime('%s', 'now'))
+                        Created 							DATE DEFAULT (strftime('%s', date('now')))
                     );
                 CREATE INDEX Nodes_Created_ix ON Nodes(Created DESC);
 
