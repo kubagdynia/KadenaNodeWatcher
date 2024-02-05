@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "KadenaNodeWatcher.Collector": {
+      "commandName": "Project",
+      "commandLineArgs": "-a -g"
+    }
+  }
+}
