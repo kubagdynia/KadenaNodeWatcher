@@ -2,11 +2,24 @@ using KadenaNodeWatcher.Core.Extensions;
 using KadenaNodeWatcher.Core.Models.Dto;
 using KadenaNodeWatcher.Core.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// defining Serilog configs
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+// configure logging
+builder.Services.AddLogging(b =>
+{ 
+    b.AddSerilog();
+});
 
 builder.Services.AddProblemDetails();
 
