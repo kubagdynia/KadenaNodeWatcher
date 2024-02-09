@@ -43,3 +43,11 @@ foreach($data in $foldersToCopy)
         Write-host "Folder" $data.Source "does not exist!" -f Red
     }
 }
+
+### CREATE FOLDERS IF NOT EXISTS
+
+if (-Not (Test-Path "../logs"))
+{
+    #powershell create directory
+    New-Item -ItemType Directory -Path "../logs"
+}
