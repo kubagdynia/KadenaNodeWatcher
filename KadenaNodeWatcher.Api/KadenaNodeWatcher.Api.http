@@ -1,4 +1,4 @@
-@KadenaNodeWatcher.Api_HostAddress = http://localhost:8080
+@KadenaNodeWatcher.Api_HostAddress = http://localhost
 
 ### Get nodes
 
@@ -7,7 +7,7 @@ Accept: application/json
 
 ### Get number of nodes grouped by dates
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?dateFrom=2024-01-30&dateTo=2024-02-06
+GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?dateFrom=2024-01-30&dateTo=2024-02-08
 Accept: application/json
 
 ### Get number of nodes grouped by country

@@ -1,7 +1,0 @@
-kadenanodewatcherapi
-
-docker build -t kadenanodewatcherapi -f .\DockerfileApi .
-
-docker run -ti --rm -p 8080:8080 -v D:/Dev/MyProjects/KadenaNodeWatcher/db:/app/db -v D:/Dev/MyProjects/KadenaNodeWatcher/logs:/app/logs --name kadenanodewatcher-api-container kadenanodewatcherapi
-
-# docker run -ti --rm -p 8080:8080 -v ${PWD}/KadenaNodeWatcher/db:/app/db -v ${PWD}/KadenaNodeWatcher/logs:/app/logs --name kadenanodewatcher-api-container kadenanodewatcherapi

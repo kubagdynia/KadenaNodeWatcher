@@ -398,4 +398,7 @@ FodyWeavers.xsd
 .idea/
 *.sln.iml
 
-db/
+data/db/*
+!data/db/readme.md
+infra/kadenanodewatcher/webapi/*
+!infra/kadenanodewatcher/webapi/Dockerfile

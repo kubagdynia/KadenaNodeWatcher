@@ -26,7 +26,9 @@ WORKDIR /app/api
 COPY --from=publish /app/publish .
 
 # Create the db and logs directories within the container
-RUN mkdir //app/db
-RUN mkdir //app/logs
+RUN mkdir //app/data
+RUN mkdir //app/data/db
+RUN mkdir //app/infra
+RUN mkdir //app/infra/logs
 
 ENTRYPOINT ["dotnet", "KadenaNodeWatcher.Api.dll"]
