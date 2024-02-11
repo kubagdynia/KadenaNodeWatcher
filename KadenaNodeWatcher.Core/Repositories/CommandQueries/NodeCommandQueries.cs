@@ -45,13 +45,13 @@ internal class NodeCommandQueries : INodeCommandQueries
            INSERT INTO IpGeolocation (IpAddress, City, Country, CountryCode, CountryCodeIso3, CountryName, ContinentCode, RegionCode, Region, Org)
            VALUES (@IpAddress, @City, @Country, @CountryCode, @CountryCodeIso3, @CountryName, @ContinentCode, @RegionCode, @Region, @Org)
            """;
-    
-    // SELECT
-    //     n.Created, count(*) TotalCount,
-    // sum(CASE WHEN n.IsOnline = 1 THEN 1 ELSE 0 END) Online,
-    // sum(CASE WHEN n.IsOnline <> 1 THEN 1 ELSE 0 END) Offline
-    //     FROM Nodes n WHERE n.Created BETWEEN 1706400000 AND 1706832000
-    // GROUP BY n.Created
-    //     ORDER By Created ASC
-    
+
+    public string GetNodesWithoutIpGeolocation(int numberOfRecords)
+        => $"""
+           SELECT n.IpAddress, n.Hostname FROM Nodes n
+           LEFT JOIN IpGeolocation ip ON ip.IpAddress = n.IpAddress
+           WHERE n.IpAddress IS NOT NULL AND ip.Id IS NULL
+           GROUP BY n.IpAddress, n.Hostname
+           LIMIT {numberOfRecords}
+           """;
 }  

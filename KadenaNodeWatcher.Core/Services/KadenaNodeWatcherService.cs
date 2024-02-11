@@ -181,7 +181,7 @@ internal class KadenaNodeWatcherService(
         IEnumerable<NumberOfNodesGroupedByDatesDb> numberOfNodesGroupdeByDates =
             await nodeRepository.GetNumberOfNodesGroupedByDates(dateFrom, dateTo);
         
-        List<NumberOfNodesGroupedByDatesDto> resultList = numberOfNodesGroupdeByDates.Select(
+        return numberOfNodesGroupdeByDates.Select(
             item => new NumberOfNodesGroupedByDatesDto
             {
                 Date = item.Date.UnixTimeToUtcDateTime(),
@@ -189,8 +189,6 @@ internal class KadenaNodeWatcherService(
                 Online = item.Online,
                 Offline = item.Offline
             }).ToList();
-
-        return resultList;
     }
 
     public async Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(
@@ -199,22 +197,20 @@ internal class KadenaNodeWatcherService(
         IEnumerable<NumberOfNodesGroupedByCountryDb> nodesGroupedByCountry =
             await nodeRepository.GetNumberOfNodesGroupedByCountry(dateTime, isOnline);
 
-        List<NumberOfNodesGroupedByCountryDto> resultList = nodesGroupedByCountry.Select(
+        return nodesGroupedByCountry.Select(
             item => new NumberOfNodesGroupedByCountryDto
             {
                 CountryName = item.CountryName,
                 CountryCode = item.CountryCode,
                 Count = item.Count
             }).ToList();
-
-        return resultList;
     }
 
     public async Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date, bool? isOnline = null)
     {
         IEnumerable<FullNodeDataDb> nodes = await nodeRepository.GetNodes(date, isOnline);
         
-        List<FullNodeDataDto> resultList = nodes.Select(
+        return nodes.Select(
             node => new FullNodeDataDto
             {
                 Id = node.Id,
@@ -231,9 +227,26 @@ internal class KadenaNodeWatcherService(
                 Org = node.Org
             }
         ).ToList();
-
-        return resultList;
     }
+
+    public async Task CollectNodeIpGeolocations(int numberOfRecords)
+    {
+        IEnumerable<NodeDbModel> nodes = await nodeRepository.GetNodesWithoutIpGeolocation(numberOfRecords);
+        
+        foreach (var node in nodes)
+        {
+            if (!await nodeRepository.IpGeolocationExistsAsync(node.IpAddress))
+            {
+                IpGeolocationModel ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(node.IpAddress);
+                if (ipGeolocation is not null)
+                {
+                    await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
+                }
+            }
+        }
+        
+        await Task.CompletedTask;
+    } 
 
     private List<Peer> PreparePeers(List<Peer> items)
     {

@@ -33,6 +33,12 @@ public class App(IKadenaNodeWatcherService kadenaNodeWatcherService)
 
             Console.WriteLine(JsonSerializer.Serialize(nodeDataResult, JsonSerializerOptions));
         }
+        else if (runningOptions.CollectNodeIpGeolocations)
+        {
+            Console.WriteLine("CollectNodeIpGeolocations: Start");
+            await kadenaNodeWatcherService.CollectNodeIpGeolocations(runningOptions.NumberOfItems);
+            Console.WriteLine("CollectNodeIpGeolocations: End");
+        }
     }
     
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()

@@ -17,4 +17,6 @@ internal interface INodeCommandQueries
     string GetIpGeolocation { get; }
     
     string AddIpGeolocation { get; }
+
+    string GetNodesWithoutIpGeolocation(int numberOfRecords);
 }

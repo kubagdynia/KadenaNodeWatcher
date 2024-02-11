@@ -148,4 +148,11 @@ internal class NodeRepository(
 
         await Task.CompletedTask;
     }
+
+    public async Task<IEnumerable<NodeDbModel>> GetNodesWithoutIpGeolocation(int numberOfRecords)
+    {
+        using var conn = connectionFactory.Connection();
+
+        return await conn.QueryAsync<NodeDbModel>(nodeCommandQueries.GetNodesWithoutIpGeolocation(numberOfRecords));
+    }
 }

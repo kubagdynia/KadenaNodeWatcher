@@ -13,6 +13,8 @@ internal class NodeDbModel
     public bool? IsOnline { get; set; }
         
     public string NodeVersion { get; set; }
+    
+    public long Created { get; set; }
 
     public static NodeDbModel CreateNodeDbModel(
         string ipAddress, string hostname, int? port, bool? isOnline, string nodeVersion)

@@ -21,4 +21,6 @@ internal interface INodeRepository
     Task<bool> IpGeolocationExistsAsync(string ip);
 
     Task AddIpGeolocationAsync(IpGeolocationDb ipGeolocation);
+
+    Task<IEnumerable<NodeDbModel>> GetNodesWithoutIpGeolocation(int numberOfRecords);
 }
