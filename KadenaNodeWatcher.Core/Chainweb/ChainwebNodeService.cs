@@ -17,8 +17,6 @@ internal class ChainwebNodeService : IChainwebNodeService
     
     private readonly NodeVersion _nodeVersion;
     private readonly string _nodeApiVersion;
-    
-    private readonly string _baseAddress;
 
     public ChainwebNodeService(
         IHttpClientFactory clientFactory,
@@ -31,15 +29,10 @@ internal class ChainwebNodeService : IChainwebNodeService
         _chainwebSettings = chainwebSettings.Value;
         _chainwebCommon = chainwebCommon;
         
-        NetworkConfig networkConfig = _chainwebSettings.GetSelectedNetworkConfig();
+        var networkConfig = _chainwebSettings.GetSelectedNetworkConfig();
         
         _nodeVersion = networkConfig.NodeVersion;
         _nodeApiVersion = networkConfig.NodeApiVersion;
-        
-        string node = _chainwebSettings.GetSelectedRootNode();
-        _logger.LogInformation($"Selected root node: {node}.");
-        
-        _baseAddress = node;
     }
 
     /// <summary>
@@ -51,13 +44,13 @@ internal class ChainwebNodeService : IChainwebNodeService
     /// <exception cref="NotImplementedException"></exception>
     public async Task<GetCutResponse> GetCutAsync(string baseAddress, CancellationToken ct = default)
     {
-        string requestUri = $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut";
+        var requestUri = $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut";
         
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
         try
         {
-            using HttpResponseMessage response = await client.GetAsync(requestUri, ct);
+            using var response = await client.GetAsync(requestUri, ct);
 
             if (response.IsSuccessStatusCode)
             {
@@ -74,37 +67,28 @@ internal class ChainwebNodeService : IChainwebNodeService
                 }
                 catch (NotSupportedException ex) // When content type is not valid
                 {
-                    _logger.LogError(ex, "The content type is not supported.");
+                    _logger.LogError(ex, $"The content type is not supported. Node address: {baseAddress}");
                     throw;
                 }
                 catch (JsonException ex) // Invalid JSON
                 {
-                    _logger.LogError(ex, "Invalid JSON.");
+                    _logger.LogError(ex, $"Invalid JSON. Node address: {baseAddress}");
                     throw;
                 }
             }
         }
         catch (TimeoutRejectedException ex)
         {
-            _logger.LogError(ex, "Timeout has occurred.");
+            _logger.LogError(ex, $"Timeout has occurred. Node address: {baseAddress}");
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred.");
+            _logger.LogError(ex, $"An error occurred. Node address: {baseAddress}");
             throw;
         }
 
         return await Task.FromResult<GetCutResponse>(null);
-    }
-
-    /// <summary>
-    /// Returns an object containing the peers from the peer database of the remote node and base node headers
-    /// </summary>
-    /// <returns>Peers from the peer database of the remote node and base node headers</returns>
-    public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(CancellationToken ct = default)
-    {
-        return await GetCutNetworkPeerInfoAsync(_baseAddress, ct);
     }
 
     /// <summary>
@@ -116,14 +100,14 @@ internal class ChainwebNodeService : IChainwebNodeService
     public async Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(string baseAddress, CancellationToken ct = default)
     {
         // limit - Maximum number of records that may be returned.
-        string requestUri =
+        var requestUri =
             $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_chainwebSettings.PageLimit}";
         
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
         try
         {
-            using HttpResponseMessage response = await client.GetAsync(requestUri, ct);
+            using var response = await client.GetAsync(requestUri, ct);
 
             if (response.IsSuccessStatusCode)
             {
@@ -147,24 +131,24 @@ internal class ChainwebNodeService : IChainwebNodeService
                 }
                 catch (NotSupportedException ex) // When content type is not valid
                 {
-                    _logger.LogError(ex, "The content type is not supported.");
+                    _logger.LogError(ex, $"The content type is not supported. Node address: {baseAddress}");
                     throw;
                 }
                 catch (JsonException ex) // Invalid JSON
                 {
-                    _logger.LogError(ex, "Invalid JSON.");
+                    _logger.LogError(ex, $"Invalid JSON. Node address: {baseAddress}");
                     throw;
                 }
             }
         }
         catch (TimeoutRejectedException ex)
         {
-            _logger.LogError(ex, "Timeout has occurred.");
+            _logger.LogError(ex, $"Timeout has occurred. Node address: {baseAddress}");
             throw;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred.");
+            _logger.LogError(ex, $"An error occurred. Node address: {baseAddress}");
             throw;
         }
 
@@ -180,23 +164,23 @@ internal class ChainwebNodeService : IChainwebNodeService
     /// <returns>Peers from the peer database of the remote node</returns>
     private async Task<List<Peer>> GetCutNetworkPeerInfoAsync(string baseAddress, string next, CancellationToken ct = default)
     {
-        List<Peer> items = new List<Peer>();
+        var items = new List<Peer>();
 
         if (string.IsNullOrEmpty(next))
         {
             return items;
         }
 
-        string requestUri =
+        var requestUri =
             $"{baseAddress}/chainweb/{_nodeApiVersion}/{_nodeVersion}/cut/peer?limit={_chainwebSettings.PageLimit}&next={next}";
 
         var client = _clientFactory.CreateClient("ClientWithoutSSLValidation");
 
-        using HttpResponseMessage peers = await client.GetAsync(requestUri, ct);
+        using var peers = await client.GetAsync(requestUri, ct);
             
         if (peers.IsSuccessStatusCode)
         {
-            Page page = await peers.Content.ReadFromJsonAsync<Page>(cancellationToken: ct);
+            var page = await peers.Content.ReadFromJsonAsync<Page>(cancellationToken: ct);
             // Add an array of child peers to the result
             items.AddRange(page.Items);
             // If there is a next page, read this data.

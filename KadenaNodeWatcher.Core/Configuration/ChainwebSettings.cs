@@ -17,19 +17,59 @@ public class ChainwebSettings
     
     public string GetSelectedRootNode()
     {
-        NetworkConfig networkConfig = GetSelectedNetworkConfig();
-            
-        if (networkConfig == null)
+        var networkConfig = GetSelectedNetworkConfig();
+        
+        var selectedRootNodeIndex = GetSelectedRootNodeIndex(networkConfig);
+
+        if (selectedRootNodeIndex < 0)
         {
             return null;
+        }
+        
+        return networkConfig.RootNodes[selectedRootNodeIndex];
+    }
+
+    public List<string> GetNotSelectedRootNodes()
+    {
+        var networkConfig = GetSelectedNetworkConfig();
+        
+        var selectedRootNodeIndex = GetSelectedRootNodeIndex(networkConfig);
+
+        var endIndex = networkConfig.RootNodes.Count - 1;
+
+        List<string> resultList = [];
+        if (endIndex > selectedRootNodeIndex)
+        {
+            for (var i = selectedRootNodeIndex + 1; i <= endIndex; i++)
+            {
+                resultList.Add(networkConfig.RootNodes[i]);
+            }
+        }
+
+        if (selectedRootNodeIndex > 0)
+        {
+            for (var i = 0; i < selectedRootNodeIndex; i++)
+            {
+                resultList.Add(networkConfig.RootNodes[i]);
+            }
+        }
+
+        return resultList;
+    }
+    
+    private int GetSelectedRootNodeIndex(NetworkConfig networkConfig)
+    {
+        if (networkConfig == null)
+        {
+            return -1;
         }
 
         if (!networkConfig.RootNodes.Any())
         {
-            return null;
+            return -1;
         }
 
-        int selectedRootNode = networkConfig.SelectedRootNode ?? 1;
+        var selectedRootNode = networkConfig.SelectedRootNode ?? 1;
 
         if (selectedRootNode > networkConfig.RootNodes.Count)
         {
@@ -40,8 +80,6 @@ public class ChainwebSettings
             selectedRootNode = 1;
         }
 
-        string node = networkConfig.RootNodes[selectedRootNode - 1];
-
-        return node;
+        return selectedRootNode - 1;
     }
 }

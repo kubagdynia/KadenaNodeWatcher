@@ -80,12 +80,22 @@ internal class KadenaNodeWatcherService(
             return;
         }
         
-        appLogger.AddInfoLog("Start collecting data from root node...", DbLoggerOperationType.GetNodesData);
+        appLogger.AddInfoLog("Start collecting data from root nodes...", DbLoggerOperationType.GetNodesData);
         
         ConcurrentList<Peer> uniquePeers = [];
+
+        var selectedRootNode = _chainwebSettings.GetSelectedRootNode();
         
-        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(ct);
+        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
         uniquePeers.AddRange(response.Page.Items);
+        
+        var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
+        foreach (var notSelectedRootNode in notSelectedRootNodes)
+        {
+            var res =
+                await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
+            uniquePeers.AddRange(res.Page.Items);
+        }
 
         appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}",
             DbLoggerOperationType.GetNodesData);

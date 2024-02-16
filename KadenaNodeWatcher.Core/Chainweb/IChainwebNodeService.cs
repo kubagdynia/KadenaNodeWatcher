@@ -14,13 +14,6 @@ internal interface IChainwebNodeService
     /// <summary>
     /// Returns an object containing the peers from the peer database of the remote node and base node headers
     /// </summary>
-    /// <param name="ct">Cancellation Token</param>
-    /// <returns>Peers from the peer database of the remote node and base node headers</returns>
-    Task<GetCutNetworkPeerInfoResponse> GetCutNetworkPeerInfoAsync(CancellationToken ct = default);
-    
-    /// <summary>
-    /// Returns an object containing the peers from the peer database of the remote node and base node headers
-    /// </summary>
     /// <param name="baseAddress"></param>
     /// <param name="ct">Cancellation Token</param>
     /// <returns>Peers from the peer database of the remote node and base node headers</returns>
