@@ -10,6 +10,7 @@ using KadenaNodeWatcher.Core.Models.Dto;
 using KadenaNodeWatcher.Core.Models.NodeData;
 using KadenaNodeWatcher.Core.Repositories;
 using KadenaNodeWatcher.Core.Repositories.DbModels;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace KadenaNodeWatcher.Core.Services;
@@ -19,7 +20,8 @@ internal class KadenaNodeWatcherService(
     IIpGeolocationService ipGeolocationService,
     INodeRepository nodeRepository,
     IOptions<ChainwebSettings> chainwebSettings,
-    IAppLogger appLogger)
+    IAppLogger appLogger,
+    ILogger<ChainwebNodeService> logger)
     : IKadenaNodeWatcherService
 {
     private readonly ChainwebSettings _chainwebSettings = chainwebSettings.Value;
@@ -70,7 +72,7 @@ internal class KadenaNodeWatcherService(
     {
         appLogger.AddInfoLog("START");
         
-        int numberOfNodes = await nodeRepository.GetNumberOfNodes(DateTime.Now);
+        var numberOfNodes = await nodeRepository.GetNumberOfNodes(DateTime.Now);
         
         if (numberOfNodes > 0)
         {
@@ -85,23 +87,31 @@ internal class KadenaNodeWatcherService(
         ConcurrentList<Peer> uniquePeers = [];
 
         var selectedRootNode = _chainwebSettings.GetSelectedRootNode();
-        
-        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
-        uniquePeers.AddRange(response.Page.Items);
-        
-        var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
-        foreach (var notSelectedRootNode in notSelectedRootNodes)
+
+        GetCutNetworkPeerInfoResponse selectedRootNodeResponse = null;
+        try
         {
-            var res =
-                await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
-            uniquePeers.AddRange(res.Page.Items);
+            selectedRootNodeResponse = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
+            uniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
+        
+            var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
+            foreach (var notSelectedRootNode in notSelectedRootNodes)
+            {
+                var res =
+                    await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
+                uniquePeers.AddRange(res.Page.Items);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred.");
         }
 
         appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}",
             DbLoggerOperationType.GetNodesData);
         
         // Returns a full or partial list of child nodes
-        List<Peer> peers = PreparePeers(response.Page.Items);
+        List<Peer> peers = PreparePeers(selectedRootNodeResponse.Page.Items);
         
         // Limiting the maximum degree of parallelism to 3
         ParallelOptions parallelOptions = new()
