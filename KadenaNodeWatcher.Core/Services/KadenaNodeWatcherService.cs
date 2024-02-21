@@ -85,33 +85,44 @@ internal class KadenaNodeWatcherService(
         appLogger.AddInfoLog("Start collecting data from root nodes...", DbLoggerOperationType.GetNodesData);
         
         ConcurrentList<Peer> uniquePeers = [];
+        List<Peer> rootUniquePeers = [];
 
         var selectedRootNode = _chainwebSettings.GetSelectedRootNode();
-
-        GetCutNetworkPeerInfoResponse selectedRootNodeResponse = null;
+        
         try
         {
-            selectedRootNodeResponse = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
+            var selectedRootNodeResponse = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
+            rootUniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
             uniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
-        
-            var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
-            foreach (var notSelectedRootNode in notSelectedRootNodes)
-            {
-                var res =
-                    await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
-                uniquePeers.AddRange(res.Page.Items);
-            }
         }
         catch (Exception ex)
         {
             logger.LogError(ex, $"An error occurred.");
+        }
+    
+        var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
+        foreach (var notSelectedRootNode in notSelectedRootNodes)
+        {
+            try
+            {
+                var res = await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
+                if (!rootUniquePeers.Any())
+                {
+                    rootUniquePeers.AddRange(res.Page.Items);
+                }
+                uniquePeers.AddUniqueAddress(res.Page.Items);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"An error occurred.");
+            }
         }
 
         appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}",
             DbLoggerOperationType.GetNodesData);
         
         // Returns a full or partial list of child nodes
-        List<Peer> peers = PreparePeers(selectedRootNodeResponse.Page.Items);
+        List<Peer> peers = PreparePeers(rootUniquePeers);
         
         // Limiting the maximum degree of parallelism to 3
         ParallelOptions parallelOptions = new()
