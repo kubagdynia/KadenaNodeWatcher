@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Repositories.DbModels;
 
-public class FullNodeDataDb
+internal class FullNodeDataDb
 {
     public int Id { get; set; }
     

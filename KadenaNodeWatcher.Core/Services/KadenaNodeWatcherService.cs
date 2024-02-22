@@ -3,6 +3,7 @@ using IpGeolocation.Services;
 using KadenaNodeWatcher.Core.Chainweb;
 using KadenaNodeWatcher.Core.Configuration;
 using KadenaNodeWatcher.Core.Extensions;
+using KadenaNodeWatcher.Core.Helpers;
 using KadenaNodeWatcher.Core.Logs;
 using KadenaNodeWatcher.Core.Logs.Models;
 using KadenaNodeWatcher.Core.Models;
@@ -30,15 +31,15 @@ internal class KadenaNodeWatcherService(
     {
         List<Peer> uniquePeers = [];
 
-        GetCutNetworkPeerInfoResponse response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(hostName, ct);
+        var response = await chainwebNodeService.GetCutNetworkPeerInfoAsync(hostName, ct);
         uniquePeers.AddRange(response.Page.Items);
         
-        string ip = GetIp(hostName);
+        var ip = IpHelper.GetIp(hostName);
         
         IpGeolocationModel ipGeolocation = null;
         if (checkIpGeolocation)
         {
-            IpGeolocationDb ipGeolocationDb = await nodeRepository.GetIpGeolocationAsync(ip);
+            var ipGeolocationDb = await nodeRepository.GetIpGeolocationAsync(ip);
 
             if (ipGeolocationDb is null)
             {
@@ -54,7 +55,7 @@ internal class KadenaNodeWatcherService(
             }
         }
         
-        NodeDataResponse nodeDataResponse = new NodeDataResponse
+        var nodeDataResponse = new NodeDataResponse
         {
             HostName = hostName,
             Ip = ip,
@@ -76,125 +77,30 @@ internal class KadenaNodeWatcherService(
         
         if (numberOfNodes > 0)
         {
-            appLogger.AddInfoLog($"Nodes data has already been collected today: {numberOfNodes}.",
-                DbLoggerOperationType.GetNodesData);
+            appLogger.AddInfoLog($"Nodes data has already been collected today: {numberOfNodes}.", DbLoggerOperationType.GetNodesData);
             await Task.CompletedTask;
             return;
         }
         
-        appLogger.AddInfoLog("Start collecting data from root nodes...", DbLoggerOperationType.GetNodesData);
-        
-        ConcurrentList<Peer> uniquePeers = [];
-        List<Peer> rootUniquePeers = [];
-
-        var selectedRootNode = _chainwebSettings.GetSelectedRootNode();
-        
-        try
-        {
-            var selectedRootNodeResponse = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
-            rootUniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
-            uniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"An error occurred.");
-        }
-    
-        var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
-        foreach (var notSelectedRootNode in notSelectedRootNodes)
-        {
-            try
-            {
-                var res = await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
-                if (!rootUniquePeers.Any())
-                {
-                    rootUniquePeers.AddRange(res.Page.Items);
-                }
-                uniquePeers.AddUniqueAddress(res.Page.Items);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"An error occurred.");
-            }
-        }
-
-        appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}",
-            DbLoggerOperationType.GetNodesData);
+        var (uniquePeers, rootUniquePeers) = await CollectDataFromRootNodes(ct);
         
         // Returns a full or partial list of child nodes
-        List<Peer> peers = PreparePeers(rootUniquePeers);
+        var peers = PreparePeers(rootUniquePeers);
         
-        // Limiting the maximum degree of parallelism to 3
-        ParallelOptions parallelOptions = new()
-        {
-            MaxDegreeOfParallelism = Math.Min(3, Environment.ProcessorCount - 1)
-        };
-
-        appLogger.AddInfoLog($"Start collecting node data from child nodes...", DbLoggerOperationType.GetNodesData);
+        await CollectDataFromChildNodes(peers, uniquePeers, ct);
         
-        await Parallel.ForEachAsync(peers, parallelOptions, async (peer, _) =>
-        {
-            await GetUniquePeers(peer, uniquePeers, ct);
-        });
-
-        appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}.",
-            DbLoggerOperationType.GetNodesData);
-        
-        AddIpAddress(uniquePeers);
+        uniquePeers.AddIpAddress();
         
         uniquePeers.Sort((peer, peer1) =>
             string.Compare(peer.Address.Hostname, peer1.Address.Hostname, StringComparison.Ordinal));
         
-        List<Peer> uniquePeersToCheck = uniquePeers.Where(c => c.IsOnline is null).ToList();
-
-        appLogger.AddInfoLog($"Start checking, whether nodes are online and what is their version...",
-            DbLoggerOperationType.GetNodesData);
+        var(online, offline) = await CheckNodesAreOnline(uniquePeers, ct);
         
-        foreach (var value1 in uniquePeersToCheck)
-        {
-            value1.IsOnline = true;
-        }
-        
-        // The code will be executed in parallel by up to three threads
-        await Parallel.ForEachAsync(uniquePeersToCheck, parallelOptions, async (peer, _) =>
-        {
-            await IsOnline(peer, ct);
-        });
-
-        int online = uniquePeers.Count(c => c.IsOnline.HasValue && c.IsOnline.Value);
-        int offline = uniquePeers.Count - online;
-        appLogger.AddInfoLog($"Finish. Online: {online}, Offline: {offline}",
-            DbLoggerOperationType.GetNodesData);
-        
-        // Prepare nodes information to be stored in the database 
-        List<NodeDbModel> nodeList = uniquePeers.Select(
-            peer => NodeDbModel.CreateNodeDbModel(
-                peer.Address.Ip,
-                peer.Address.Hostname,
-                peer.Address.Port,
-                peer.IsOnline,
-                peer.ChainwebNodeVersion)
-            ).ToList();
-        
-        // Saving nodes info in the db
-        await nodeRepository.AddNodes(nodeList);
+        await SaveNodes(uniquePeers);
 
         if (checkIpGeolocation)
         {
-            appLogger.AddInfoLog($"Start checking IP geolocation...",
-                DbLoggerOperationType.GetNodesData);
-            
-            foreach (Peer peer in uniquePeers)
-            {
-                if (!await nodeRepository.IpGeolocationExistsAsync(peer.Address.Ip))
-                {
-                    IpGeolocationModel ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(peer.Address.Ip);
-                    if (ipGeolocation is not null)
-                    {
-                        await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
-                    }
-                }
-            }
+            await CheckIpGeolocation(uniquePeers);
         }
 
         appLogger.AddInfoLog($"FINISH - number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
@@ -209,7 +115,7 @@ internal class KadenaNodeWatcherService(
 
     public async Task<IEnumerable<NumberOfNodesGroupedByDatesDto>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo)
     {
-        IEnumerable<NumberOfNodesGroupedByDatesDb> numberOfNodesGroupdeByDates =
+        var numberOfNodesGroupdeByDates =
             await nodeRepository.GetNumberOfNodesGroupedByDates(dateFrom, dateTo);
         
         return numberOfNodesGroupdeByDates.Select(
@@ -225,7 +131,7 @@ internal class KadenaNodeWatcherService(
     public async Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(
         DateTime dateTime, bool? isOnline = null)
     {
-        IEnumerable<NumberOfNodesGroupedByCountryDb> nodesGroupedByCountry =
+        var nodesGroupedByCountry =
             await nodeRepository.GetNumberOfNodesGroupedByCountry(dateTime, isOnline);
 
         return nodesGroupedByCountry.Select(
@@ -239,7 +145,7 @@ internal class KadenaNodeWatcherService(
 
     public async Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date, bool? isOnline = null)
     {
-        IEnumerable<FullNodeDataDb> nodes = await nodeRepository.GetNodes(date, isOnline);
+        var nodes = await nodeRepository.GetNodes(date, isOnline);
         
         return nodes.Select(
             node => new FullNodeDataDto
@@ -262,13 +168,13 @@ internal class KadenaNodeWatcherService(
 
     public async Task CollectNodeIpGeolocations(int numberOfRecords)
     {
-        IEnumerable<NodeDbModel> nodes = await nodeRepository.GetNodesWithoutIpGeolocation(numberOfRecords);
+        var nodes = await nodeRepository.GetNodesWithoutIpGeolocation(numberOfRecords);
         
         foreach (var node in nodes)
         {
             if (!await nodeRepository.IpGeolocationExistsAsync(node.IpAddress))
             {
-                IpGeolocationModel ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(node.IpAddress);
+                var ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(node.IpAddress);
                 if (ipGeolocation is not null)
                 {
                     await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
@@ -277,11 +183,71 @@ internal class KadenaNodeWatcherService(
         }
         
         await Task.CompletedTask;
-    } 
+    }
+    
+    private async Task<(ConcurrentList<Peer>, List<Peer>)> CollectDataFromRootNodes(CancellationToken ct)
+    {
+        appLogger.AddInfoLog("Start collecting data from root nodes...", DbLoggerOperationType.GetNodesData);
+        
+        ConcurrentList<Peer> uniquePeers = [];
+        List<Peer> rootUniquePeers = [];
+        
+        var selectedRootNode = _chainwebSettings.GetSelectedRootNode();
+        
+        try
+        {
+            var selectedRootNodeResponse = await chainwebNodeService.GetCutNetworkPeerInfoAsync(selectedRootNode, ct);
+            rootUniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
+            uniquePeers.AddRange(selectedRootNodeResponse.Page.Items);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"An error occurred.");
+        }
+    
+        var notSelectedRootNodes = _chainwebSettings.GetNotSelectedRootNodes();
+        foreach (var notSelectedRootNode in notSelectedRootNodes)
+        {
+            try
+            {
+                var res = await chainwebNodeService.GetCutNetworkPeerInfoAsync(notSelectedRootNode, ct);
+                if (rootUniquePeers.Count == 0)
+                {
+                    rootUniquePeers.AddRange(res.Page.Items);
+                }
+                uniquePeers.AddUniqueAddress(res.Page.Items);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, $"An error occurred.");
+            }
+        }
+        
+        appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}", DbLoggerOperationType.GetNodesData);
+
+        return (uniquePeers, rootUniquePeers);
+    }
+    
+    private async Task CollectDataFromChildNodes(List<Peer> peers,
+        ConcurrentList<Peer> uniquePeers, CancellationToken ct)
+    {
+        appLogger.AddInfoLog($"Start collecting node data from child nodes...",
+            DbLoggerOperationType.GetNodesData);
+        
+        // Limiting the maximum degree of parallelism to 3
+        var parallelOptions = CreateParallelOptions(maxDegreeOfParallelism: 3);
+        
+        await Parallel.ForEachAsync(peers, parallelOptions, async (peer, _) =>
+        {
+            await GetUniquePeers(peer, uniquePeers, ct);
+        });
+        appLogger.AddInfoLog($"Finish. Unique nodes: {uniquePeers.Count}.",
+            DbLoggerOperationType.GetNodesData);
+    }
 
     private List<Peer> PreparePeers(List<Peer> items)
     {
-        NetworkConfig networkConfig = _chainwebSettings.GetSelectedNetworkConfig();
+        var networkConfig = _chainwebSettings.GetSelectedNetworkConfig();
         
         // Sometimes there is a need not to check all the nodes and only a part, which can be selected randomly.
         // We rely on the configuration that was specified in the ChildNodes section.
@@ -291,7 +257,7 @@ internal class KadenaNodeWatcherService(
             return items;
         }
 
-        int numberOfChildNodes = networkConfig.ChildNodes.Count <= 0 ? items.Count : networkConfig.ChildNodes.Count;
+        var numberOfChildNodes = networkConfig.ChildNodes.Count <= 0 ? items.Count : networkConfig.ChildNodes.Count;
 
         // If this option is enabled then select random child nodes
         if (!networkConfig.ChildNodes.RandomPick)
@@ -305,7 +271,7 @@ internal class KadenaNodeWatcherService(
     
     private async Task GetUniquePeers(Peer peer, ConcurrentList<Peer> uniquePeers, CancellationToken ct = default)
     {
-        List<Peer> peers = uniquePeers.Where(c => c.Address.Hostname == peer.Address.Hostname).ToList();
+        var peers = uniquePeers.Where(c => c.Address.Hostname == peer.Address.Hostname).ToList();
         
         GetCutNetworkPeerInfoResponse response;
         try
@@ -373,55 +339,77 @@ internal class KadenaNodeWatcherService(
         }
     }
     
-    private void AddIpAddress(ConcurrentList<Peer> uniquePeers)
+    private async Task<(int, int)> CheckNodesAreOnline(ConcurrentList<Peer> peers, CancellationToken ct)
     {
-        foreach (var peer in uniquePeers)
+        appLogger.AddInfoLog($"Start checking, whether nodes are online and what is their version...",
+            DbLoggerOperationType.GetNodesData);
+        
+        var uniquePeersToCheck = peers.Where(c => c.IsOnline is null).ToList();
+        
+        foreach (var value1 in uniquePeersToCheck)
         {
-            if (peer is null)
-            {
-                continue;
-            }
-
-            peer.Address.Ip = GetIp(peer.Address.Hostname);
-        }
-    }
-
-    private string GetIp(string hostName)
-    {
-        UriHostNameType uriHostNameType = Uri.CheckHostName(hostName);
-        if (uriHostNameType == UriHostNameType.Dns)
-        {
-            try
-            {
-                System.Net.IPAddress[] ddIpAddresses = System.Net.Dns.GetHostAddresses(hostName);
-                var ipAddress = ddIpAddresses.FirstOrDefault();
-                return ipAddress?.ToString();
-            }
-            catch
-            {
-                // ignored
-            }
-        }
-        else if (uriHostNameType == UriHostNameType.Unknown)
-        {
-            try
-            {
-                Uri uri = new Uri(hostName);
-                return uri.GetIp();
-            }
-            catch
-            {
-                // ignored
-            }
-
-            return hostName;
-        }
-        else
-        {
-            return hostName;
+            value1.IsOnline = true;
         }
         
-        return string.Empty;
+        // Limiting the maximum degree of parallelism to 3
+        var parallelOptions = CreateParallelOptions(maxDegreeOfParallelism: 3);
+        
+        // The code will be executed in parallel by up to three threads
+        await Parallel.ForEachAsync(uniquePeersToCheck, parallelOptions, async (peer, _) =>
+        {
+            await IsOnline(peer, ct);
+        });
+        
+        var online = peers.Count(c => c.IsOnline.HasValue && c.IsOnline.Value);
+        var offline = peers.Count - online;
+        
+        appLogger.AddInfoLog($"Finish. Online: {online}, Offline: {offline}",
+            DbLoggerOperationType.GetNodesData);
+        
+        return (online, offline);
     }
+    
+    private async Task CheckIpGeolocation(ConcurrentList<Peer> peers)
+    {
+        appLogger.AddInfoLog($"Start checking IP geolocation...", DbLoggerOperationType.GetNodesData);
+
+        foreach (var peer in peers)
+        {
+            var ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(peer.Address.Ip);
+            if (!await nodeRepository.IpGeolocationExistsAsync(peer.Address.Ip))
+            {
+                if (ipGeolocation is not null)
+                {
+                    await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
+                }
+            }
+        }
+    }
+    
+    private async Task SaveNodes(ConcurrentList<Peer> uniquePeers)
+    {
+        // Prepare nodes information to be stored in the database 
+        var nodeList = uniquePeers.Select(
+            peer => NodeDbModel.CreateNodeDbModel(
+                peer.Address.Ip,
+                peer.Address.Hostname,
+                peer.Address.Port,
+                peer.IsOnline,
+                peer.ChainwebNodeVersion)
+        ).ToList();
+
+        // Saving nodes info in the db
+        await nodeRepository.AddNodes(nodeList);
+    }
+
+    /// <summary>
+    /// Limiting the maximum degree of parallelism to 3
+    /// </summary>
+    /// <param name="maxDegreeOfParallelism"></param>
+    private ParallelOptions CreateParallelOptions(int maxDegreeOfParallelism)
+        => new()
+        {
+            MaxDegreeOfParallelism = Math.Min(maxDegreeOfParallelism, Environment.ProcessorCount - 1)
+        };
 }
 

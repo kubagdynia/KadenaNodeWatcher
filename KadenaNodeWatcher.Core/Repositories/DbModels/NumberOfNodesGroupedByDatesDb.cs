@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Repositories.DbModels;
 
-public class NumberOfNodesGroupedByDatesDb
+internal class NumberOfNodesGroupedByDatesDb
 {
     public long Date { get; set; }
 

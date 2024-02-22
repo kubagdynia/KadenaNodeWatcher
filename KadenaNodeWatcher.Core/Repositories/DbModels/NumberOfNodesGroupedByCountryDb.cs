@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Repositories.DbModels;
 
-public class NumberOfNodesGroupedByCountryDb
+internal class NumberOfNodesGroupedByCountryDb
 {
     public string CountryName { get; set; }
     
