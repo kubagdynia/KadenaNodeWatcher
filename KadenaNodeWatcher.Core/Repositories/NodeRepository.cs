@@ -84,6 +84,27 @@ internal class NodeRepository(
         return await conn.QueryAsync<NumberOfNodesGroupedByCountryDb>(
             nodeCommandQueries.GetNumberOfNodesGroupedByCountry(), parameters);
     }
+    
+    public async Task<IEnumerable<NumberOfNodesGroupedByVersionDb>> GetNumberOfNodesGroupedByVersion(
+        DateTime date, bool? isOnline = null)
+    {
+        using var conn = connectionFactory.Connection();
+
+        var unixTime = date.ToUnixTimeSecondsWithoutMinutes();
+
+        object parameters;
+
+        if (isOnline.HasValue)
+        {
+            parameters = new { date = unixTime, isOnline };
+            return await conn.QueryAsync<NumberOfNodesGroupedByVersionDb>(
+                nodeCommandQueries.GetNumberOfNodesGroupedByVersion(isOnline), parameters);
+        }
+
+        parameters = new { date = unixTime };
+        return await conn.QueryAsync<NumberOfNodesGroupedByVersionDb>(
+            nodeCommandQueries.GetNumberOfNodesGroupedByVersion(), parameters);
+    }
 
     public async Task<IEnumerable<FullNodeDataDb>> GetNodes(DateTime date, bool? isOnline = null)
     {

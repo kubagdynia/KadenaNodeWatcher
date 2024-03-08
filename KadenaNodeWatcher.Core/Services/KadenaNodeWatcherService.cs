@@ -142,6 +142,21 @@ internal class KadenaNodeWatcherService(
                 Count = item.Count
             }).ToList();
     }
+    
+    public async Task<IEnumerable<NumberOfNodesGroupedByVersionDto>> GetNumberOfNodesGroupedByVersion(
+        DateTime dateTime, bool? isOnline = null)
+    {
+        var nodesGroupedByVersion =
+            await nodeRepository.GetNumberOfNodesGroupedByVersion(dateTime, isOnline);
+
+        return nodesGroupedByVersion.Select(
+            item => new NumberOfNodesGroupedByVersionDto
+            {
+                NodeVersion = item.NodeVersion,
+                Date = item.Date.UnixTimeToUtcDateTime(),
+                Count = item.Count
+            }).ToList();
+    }
 
     public async Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date, bool? isOnline = null)
     {

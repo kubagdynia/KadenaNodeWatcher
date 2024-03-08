@@ -14,6 +14,8 @@ internal interface INodeRepository
     
     Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(DateTime date, bool? isOnline = null);
 
+    Task<IEnumerable<NumberOfNodesGroupedByVersionDb>> GetNumberOfNodesGroupedByVersion(DateTime date, bool? isOnline = null);
+
     Task<IEnumerable<FullNodeDataDb>> GetNodes(DateTime date, bool? isOnline = null);
 
     Task<IpGeolocationDb> GetIpGeolocationAsync(string ip);

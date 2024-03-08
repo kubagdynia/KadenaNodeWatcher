@@ -20,9 +20,16 @@ internal class NodeCommandQueries : INodeCommandQueries
 
     public string GetNumberOfNodesGroupedByCountry(bool? isOnline = null)
         => $"""
-            SELECT ip.CountryName, ip.CountryCode, COUNT(n.Id) Count  FROM Nodes n
+            SELECT ip.CountryName, ip.CountryCode, COUNT(n.Id) Count FROM Nodes n
             LEFT JOIN IpGeolocation ip ON ip.IpAddress = n.IpAddress WHERE n.Created = @date {(isOnline.HasValue ? "AND n.IsOnline = @isOnline" : "")}
             GROUP BY ip.Country ORDER BY COUNT(n.Id) DESC
+            """;
+    
+    public string GetNumberOfNodesGroupedByVersion(bool? isOnline = null)
+        => $"""
+            SELECT n.NodeVersion, n.Created AS Date, COUNT(n.Id) Count FROM Nodes n
+            WHERE n.Created = @date {(isOnline.HasValue ? "AND n.IsOnline = @isOnline" : "")}
+            GROUP BY n.NodeVersion ORDER BY COUNT(n.Id) DESC
             """;
 
     public string GetNodes(bool? isOnline = null)

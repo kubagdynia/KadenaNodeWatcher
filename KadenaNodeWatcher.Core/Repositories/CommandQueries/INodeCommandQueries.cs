@@ -9,6 +9,8 @@ internal interface INodeCommandQueries
     string GetNumberOfNodesGroupedByDates();
 
     string GetNumberOfNodesGroupedByCountry(bool? isOnline = null);
+
+    string GetNumberOfNodesGroupedByVersion(bool? isOnline = null);
     
     string GetNodes(bool? isOnline = null);
     

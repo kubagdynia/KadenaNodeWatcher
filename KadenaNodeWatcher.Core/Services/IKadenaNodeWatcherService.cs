@@ -15,6 +15,8 @@ public interface IKadenaNodeWatcherService
     
     Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(DateTime dateTime, bool? isOnline = null);
 
+    Task<IEnumerable<NumberOfNodesGroupedByVersionDto>> GetNumberOfNodesGroupedByVersion(DateTime dateTime, bool? isOnline = null);
+
     Task<IEnumerable<FullNodeDataDto>> GetNodes(DateTime date, bool? isOnline = null);
 
     Task CollectNodeIpGeolocations(int numberOfRecords);

@@ -83,4 +83,18 @@ nodesEndpoints.MapGet("/nodes/countries/count", async Task<Results<Ok<IEnumerabl
     .WithSummary("Get number of nodes grouped by country for a specific date.")
     .WithOpenApi();
 
+nodesEndpoints.MapGet("/nodes/versions/count", async Task<Results<Ok<IEnumerable<NumberOfNodesGroupedByVersionDto>>, NotFound, BadRequest>>
+        (DateTime? date, bool? isOnline, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
+    {
+        date ??= DateTime.Now;
+
+        IEnumerable<NumberOfNodesGroupedByVersionDto> nodesGroupedByVersion =
+            (await kadenaNodeWatcherService.GetNumberOfNodesGroupedByVersion(date.Value, isOnline)).ToList();
+        
+        return !nodesGroupedByVersion.Any() ? TypedResults.NotFound() : TypedResults.Ok(nodesGroupedByVersion);
+    })
+    .WithName("GetNumberOfNodesGroupedByVersion")
+    .WithSummary("Get number of nodes grouped by version for a specific date.")
+    .WithOpenApi();
+
 app.Run();
