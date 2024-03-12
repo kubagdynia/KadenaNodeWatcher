@@ -69,7 +69,7 @@ internal class KadenaNodeWatcherService(
         return await Task.FromResult(nodeDataResponse);
     }
 
-    public async Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default)
+    public async Task CollectNodeData(CancellationToken ct = default)
     {
         appLogger.AddInfoLog("START");
         
@@ -97,11 +97,6 @@ internal class KadenaNodeWatcherService(
         var(online, offline) = await CheckNodesAreOnline(uniquePeers, ct);
         
         await SaveNodes(uniquePeers);
-
-        if (checkIpGeolocation)
-        {
-            await CheckIpGeolocation(uniquePeers);
-        }
 
         appLogger.AddInfoLog($"FINISH - number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
 
@@ -183,7 +178,9 @@ internal class KadenaNodeWatcherService(
 
     public async Task CollectNodeIpGeolocations(int numberOfRecords)
     {
-        var nodes = await nodeRepository.GetNodesWithoutIpGeolocation(numberOfRecords);
+        appLogger.AddInfoLog($"Start checking IP geolocation...", DbLoggerOperationType.GetIpGeolocations);
+        
+        var nodes = (await nodeRepository.GetNodesWithoutIpGeolocation(numberOfRecords)).ToList();
         
         foreach (var node in nodes)
         {
@@ -196,6 +193,8 @@ internal class KadenaNodeWatcherService(
                 }
             }
         }
+        
+        appLogger.AddInfoLog($"Finish checking IP geolocation: {nodes.Count}", DbLoggerOperationType.GetIpGeolocations);
         
         await Task.CompletedTask;
     }
@@ -382,23 +381,6 @@ internal class KadenaNodeWatcherService(
             DbLoggerOperationType.GetNodesData);
         
         return (online, offline);
-    }
-    
-    private async Task CheckIpGeolocation(ConcurrentList<Peer> peers)
-    {
-        appLogger.AddInfoLog($"Start checking IP geolocation...", DbLoggerOperationType.GetNodesData);
-
-        foreach (var peer in peers)
-        {
-            var ipGeolocation = await ipGeolocationService.GetIpGeolocationAsync(peer.Address.Ip);
-            if (!await nodeRepository.IpGeolocationExistsAsync(peer.Address.Ip))
-            {
-                if (ipGeolocation is not null)
-                {
-                    await nodeRepository.AddIpGeolocationAsync(ipGeolocation.ToDbModel());
-                }
-            }
-        }
     }
     
     private async Task SaveNodes(ConcurrentList<Peer> uniquePeers)

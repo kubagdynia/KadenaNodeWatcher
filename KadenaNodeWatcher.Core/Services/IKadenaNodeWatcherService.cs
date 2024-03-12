@@ -7,7 +7,7 @@ public interface IKadenaNodeWatcherService
 {
     Task<NodeDataResponse> GetNodeData(string hostName, bool checkIpGeolocation = false, CancellationToken ct = default);
 
-    Task CollectNodeData(bool checkIpGeolocation = false, CancellationToken ct = default);
+    Task CollectNodeData(CancellationToken ct = default);
 
     Task<int> GetNumberOfNodes(DateTime dateTime, bool? isOnline = null);
 
