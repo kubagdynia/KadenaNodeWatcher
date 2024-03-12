@@ -31,4 +31,4 @@ RUN mkdir //app/data/db
 RUN mkdir //app/infra
 RUN mkdir //app/infra/logs
 
-ENTRYPOINT ["dotnet", "KadenaNodeWatcher.Api.dll"]
+ENTRYPOINT ["dotnet", "KadenaNodeWatcher.Api.dll", "--launch-profile Prod"]
