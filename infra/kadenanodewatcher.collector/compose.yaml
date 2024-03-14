@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  collector:
+    build: ./collector
+    container_name: kadenanodewatcher-collector
+    restart: 'no'
+    volumes:
+      - type: bind
+        source: ../../data/db
+        target: /app/data/db
+      - type: bind
+        source: ../logs
+        target: /app/infra/logs
+

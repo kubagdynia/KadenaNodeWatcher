@@ -402,3 +402,5 @@ data/db/*
 !data/db/readme.md
 infra/kadenanodewatcher/webapi/*
 !infra/kadenanodewatcher/webapi/Dockerfile
+infra/kadenanodewatcher.collector/collector/*
+!infra/kadenanodewatcher.collector/collector/Dockerfile
