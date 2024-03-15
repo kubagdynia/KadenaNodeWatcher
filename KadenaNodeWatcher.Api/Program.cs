@@ -25,15 +25,6 @@ builder.Services.AddProblemDetails();
 
 builder.Services.RegisterCore(builder.Configuration);
 
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Services.AddHttpsRedirection(options =>
-    {
-        options.RedirectStatusCode = StatusCodes.Status308PermanentRedirect;
-        options.HttpsPort = 443;
-    });
-}
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -45,7 +36,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler();
-    app.UseHsts();
 }
 
 app.UseHttpsRedirection();

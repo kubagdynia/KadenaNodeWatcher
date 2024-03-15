@@ -1,10 +1,10 @@
 #
-$WebApiPath = "./webapi"
+$RootPath = "./webapi"
 
 $foldersToDelete = @(
-    "$WebApiPath/DbConnectionExtensions"
-    "$WebApiPath/KadenaNodeWatcher.Api"
-    "$WebApiPath/KadenaNodeWatcher.Core"
+    "$RootPath/DbConnectionExtensions"
+    "$RootPath/KadenaNodeWatcher.Api"
+    "$RootPath/KadenaNodeWatcher.Core"
 )
 
 #### DELETE FILES
@@ -26,9 +26,9 @@ foreach($folder in $foldersToDelete)
 #### COPY FILES
 
 $foldersToCopy = @(
-    [pscustomobject]@{Source="../../DbConnectionExtensions";Target="$WebApiPath/DbConnectionExtensions"}
-    [pscustomobject]@{Source="../../KadenaNodeWatcher.Api";Target="$WebApiPath/KadenaNodeWatcher.Api"}
-    [pscustomobject]@{Source="../../KadenaNodeWatcher.Core";Target="$WebApiPath/KadenaNodeWatcher.Core"}
+    [pscustomobject]@{Source="../../DbConnectionExtensions";Target="$RootPath/DbConnectionExtensions"}
+    [pscustomobject]@{Source="../../KadenaNodeWatcher.Api";Target="$RootPath/KadenaNodeWatcher.Api"}
+    [pscustomobject]@{Source="../../KadenaNodeWatcher.Core";Target="$RootPath/KadenaNodeWatcher.Core"}
 )
 
 foreach($data in $foldersToCopy)
@@ -41,6 +41,24 @@ foreach($data in $foldersToCopy)
     }
     else {
         Write-host "Folder" $data.Source "does not exist!" -f Red
+    }
+}
+
+#### DELETE FILES - bin and obj
+
+foreach($folder in $foldersToDelete)
+{
+    # Check if folder exists
+    if (Test-Path $folder/bin)
+    {
+        # Folder exists, delete it!
+        Remove-Item -Path $folder/bin -Recurse
+    }
+
+    if (Test-Path $folder/obj)
+    {
+        # Folder exists, delete it!
+        Remove-Item -Path $folder/obj -Recurse
     }
 }
 

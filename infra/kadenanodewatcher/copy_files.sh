@@ -3,14 +3,14 @@
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 
-WebApiPath="./webapi"
-
-#### DELETE FILES
+RootPath="./webapi"
 
 foldersToDeleted=(
-    $WebApiPath/DbConnectionExtensions
-    $WebApiPath/KadenaNodeWatcher.Api
-    $WebApiPath/KadenaNodeWatcher.Core)
+    $RootPath/DbConnectionExtensions
+    $RootPath/KadenaNodeWatcher.Api
+    $RootPath/KadenaNodeWatcher.Core)
+
+#### DELETE FILES
 
 for folder in ${foldersToDeleted[@]}; do
     # Check if folder exists
@@ -32,9 +32,9 @@ foldersToCopyFrom=(
 )
 
 foldersToCopyTo=(
-    $WebApiPath/DbConnectionExtensions
-    $WebApiPath/KadenaNodeWatcher.Api
-    $WebApiPath/KadenaNodeWatcher.Core
+    $RootPath/DbConnectionExtensions
+    $RootPath/KadenaNodeWatcher.Api
+    $RootPath/KadenaNodeWatcher.Core
 )
 
 for (( i = 0; i < ${#foldersToCopyFrom[@]}; ++i )); do
