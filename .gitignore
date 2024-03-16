@@ -398,6 +398,8 @@ FodyWeavers.xsd
 .idea/
 *.sln.iml
 
+.mono/
+
 data/db/*
 !data/db/readme.md
 infra/kadenanodewatcher/webapi/*
