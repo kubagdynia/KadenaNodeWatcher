@@ -26,7 +26,7 @@ public class App(IKadenaNodeWatcherService kadenaNodeWatcherService)
         {
             await kadenaNodeWatcherService.CollectNodeData(cts.Token);
 
-            if (runningOptions.CollectNodeIpGeolocations)
+            if (runningOptions.CheckIpGeolocation)
             {
                 await kadenaNodeWatcherService.CollectNodeIpGeolocations(runningOptions.NumberOfItems);
             }

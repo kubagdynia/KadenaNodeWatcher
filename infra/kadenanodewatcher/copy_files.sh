@@ -47,6 +47,21 @@ for (( i = 0; i < ${#foldersToCopyFrom[@]}; ++i )); do
     fi
 done
 
+#### DELETE FILES - bin and obj
+
+for folder in ${foldersToDeleted[@]}; do
+    # Check if folder exists
+    if [ -d $folder/bin ]; then
+        # Folder exists, delete it!
+        rm -rf $folder/bin
+    fi
+
+    if [ -d $folder/obj ]; then
+        # Folder exists, delete it!
+        rm -rf $folder/obj
+    fi
+done
+
 #### CREATE FOLDERS IF NOT EXISTS
 if [ ! -d ../logs ]; then
     # Create folder
