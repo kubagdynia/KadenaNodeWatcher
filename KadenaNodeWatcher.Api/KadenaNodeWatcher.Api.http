@@ -1,45 +1,46 @@
 @KadenaNodeWatcher.Api_HostAddress = http://localhost
+@KadenaNodeWatcher.Api  = {{KadenaNodeWatcher.Api_HostAddress}}/kadenanodes/api/v1
 
 ### Get nodes
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes?date=2024-03-08
+GET {{KadenaNodeWatcher.Api}}/nodes?date=2024-03-08
 Accept: application/json
 
 ### Get number of nodes grouped by dates
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/count?dateFrom=2024-01-30&dateTo=2024-02-09
+GET {{KadenaNodeWatcher.Api}}/nodes/count?dateFrom=2024-01-30&dateTo=2024-02-09
 Accept: application/json
 
 // nodes/countries
 
 ### Get number of nodes grouped by country
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/countries/count?date=2024-03-07
+GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07
 Accept: application/json
 
 ### Get number of nodes grouped by country - online
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/countries/count?date=2024-03-08&isOnline=true
+GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-08&isOnline=true
 Accept: application/json
 
 ### Get number of nodes grouped by country - offline
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/countries/count?date=2024-01-30&isOnline=false
+GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-01-30&isOnline=false
 Accept: application/json
 
 // nodes/versions
 
 ### Get number of nodes grouped by version
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/versions/count?date=2024-03-09
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-
 Accept: application/json
 
 ### Get number of nodes grouped by version - online
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/versions/count?date=2024-03-09&isOnline=true
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-09&isOnline=true
 Accept: application/json
 
 ### Get number of nodes grouped by version - offline
 
-GET {{KadenaNodeWatcher.Api_HostAddress}}/api/nodes/versions/count?date=2024-03-09&isOnline=false
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-09&isOnline=false
 Accept: application/json

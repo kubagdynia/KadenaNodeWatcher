@@ -40,7 +40,7 @@ else
 
 app.UseHttpsRedirection();
 
-var nodesEndpoints = app.MapGroup("/api");
+var nodesEndpoints = app.MapGroup("kadenanodes/api/v1");
 
 nodesEndpoints.MapGet("/nodes", async Task<Results<Ok<IEnumerable<FullNodeDataDto>>, NotFound, BadRequest>>
         (DateTime? date, bool? isOnline, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
