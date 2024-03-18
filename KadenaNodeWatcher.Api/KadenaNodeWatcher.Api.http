@@ -1,4 +1,4 @@
-@KadenaNodeWatcher.Api_HostAddress = http://localhost
+@KadenaNodeWatcher.Api_HostAddress = http://kadenanodes.futurepenguin.com
 @KadenaNodeWatcher.Api  = {{KadenaNodeWatcher.Api_HostAddress}}/kadenanodes/api/v1
 
 ### Get nodes
@@ -32,7 +32,7 @@ Accept: application/json
 
 ### Get number of nodes grouped by version
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-18
 Accept: application/json
 
 ### Get number of nodes grouped by version - online
