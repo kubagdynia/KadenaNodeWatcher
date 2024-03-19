@@ -57,7 +57,7 @@ internal class NodeCommandQueries : INodeCommandQueries
         => $"""
            SELECT n.IpAddress, n.Hostname FROM Nodes n
            LEFT JOIN IpGeolocation ip ON ip.IpAddress = n.IpAddress
-           WHERE n.IpAddress IS NOT NULL AND ip.Id IS NULL
+           WHERE n.IpAddress IS NOT NULL AND n.IpAddress <> '' AND ip.Id IS NULL
            GROUP BY n.IpAddress, n.Hostname
            LIMIT {numberOfRecords}
            """;

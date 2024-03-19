@@ -1,4 +1,5 @@
-﻿using KadenaNodeWatcher.Core.Helpers;
+﻿using System.Net;
+using KadenaNodeWatcher.Core.Helpers;
 using KadenaNodeWatcher.Core.Models;
 
 namespace KadenaNodeWatcher.Core.Extensions;
@@ -11,9 +12,11 @@ internal static class UriExtensions
         {
             try
             {
-                var ddIpAddresses = System.Net.Dns.GetHostAddresses(uri.Host);
-                var ipAddress = ddIpAddresses.FirstOrDefault();
-                return ipAddress?.ToString();
+                IPAddress[] ddIpAddresses = Dns.GetHostAddresses(uri.Host);
+                IPAddress ipAddress = ddIpAddresses.FirstOrDefault();
+                string ipAddr = ipAddress?.ToString();
+                
+                return string.IsNullOrEmpty(ipAddr) ? null : ipAddr;
             }
             catch
             {

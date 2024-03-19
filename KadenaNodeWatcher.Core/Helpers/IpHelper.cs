@@ -1,3 +1,4 @@
+using System.Net;
 using KadenaNodeWatcher.Core.Extensions;
 
 namespace KadenaNodeWatcher.Core.Helpers;
@@ -12,9 +13,11 @@ public static class IpHelper
             case UriHostNameType.Dns:
                 try
                 {
-                    var ddIpAddresses = System.Net.Dns.GetHostAddresses(hostName);
-                    var ipAddress = ddIpAddresses.FirstOrDefault();
-                    return ipAddress?.ToString();
+                    IPAddress[] ddIpAddresses = Dns.GetHostAddresses(hostName);
+                    IPAddress ipAddress = ddIpAddresses.FirstOrDefault();
+                    string ipAddr = ipAddress?.ToString();
+                    
+                    return string.IsNullOrEmpty(ipAddr) ? null : ipAddr;
                 }
                 catch
                 {
@@ -25,7 +28,7 @@ public static class IpHelper
             case UriHostNameType.Unknown:
                 try
                 {
-                    var uri = new Uri(hostName);
+                    Uri uri = new Uri(hostName);
                     return uri.GetIp();
                 }
                 catch
