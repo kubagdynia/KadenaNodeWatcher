@@ -404,5 +404,10 @@ data/db/*
 !data/db/readme.md
 infra/kadenanodewatcher/webapi/*
 !infra/kadenanodewatcher/webapi/Dockerfile
+infra/kadenanodewatcher/certbot/*
 infra/kadenanodewatcher.collector/collector/*
 !infra/kadenanodewatcher.collector/collector/Dockerfile
+infra/*/log.txt
+infra/kadenanodewatcher-ssl/webapi/*
+!infra/kadenanodewatcher-ssl/webapi/Dockerfile
+infra/kadenanodewatcher-ssl/certbot/*
