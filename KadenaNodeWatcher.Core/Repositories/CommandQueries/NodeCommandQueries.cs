@@ -18,10 +18,12 @@ internal class NodeCommandQueries : INodeCommandQueries
            GROUP BY n.Created ORDER By Created ASC
            """;
 
-    public string GetNumberOfNodesGroupedByCountry(bool? isOnline = null)
+    public string GetNumberOfNodesGroupedByCountry(bool? isOnline = null, string nodeVersion = null)
         => $"""
             SELECT ip.CountryName, ip.CountryCode, COUNT(n.Id) Count FROM Nodes n
-            LEFT JOIN IpGeolocation ip ON ip.IpAddress = n.IpAddress WHERE n.Created = @date {(isOnline.HasValue ? "AND n.IsOnline = @isOnline" : "")}
+            LEFT JOIN IpGeolocation ip ON ip.IpAddress = n.IpAddress WHERE n.Created = @date
+            {(isOnline.HasValue ? " AND n.IsOnline = @isOnline" : "")}
+            {(string.IsNullOrWhiteSpace(nodeVersion) ? "" : " AND n.NodeVersion = @nodeVersion")}
             GROUP BY ip.Country ORDER BY COUNT(n.Id) DESC
             """;
     

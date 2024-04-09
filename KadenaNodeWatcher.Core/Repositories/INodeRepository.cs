@@ -12,7 +12,7 @@ internal interface INodeRepository
 
     Task<IEnumerable<NumberOfNodesGroupedByDatesDb>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo);
     
-    Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(DateTime date, bool? isOnline = null);
+    Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(DateTime date, bool? isOnline = null, string nodeVersion = null);
 
     Task<IEnumerable<NumberOfNodesGroupedByVersionDb>> GetNumberOfNodesGroupedByVersion(DateTime date, bool? isOnline = null);
 

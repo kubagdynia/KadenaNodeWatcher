@@ -42,6 +42,7 @@ app.UseHttpsRedirection();
 
 var nodesEndpoints = app.MapGroup("kadenanodes/api/v1");
 
+// Get full nodes data for a specific date
 nodesEndpoints.MapGet("/nodes", async Task<Results<Ok<IEnumerable<FullNodeDataDto>>, NotFound, BadRequest>>
         (DateTime? date, bool? isOnline, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
     {
@@ -54,6 +55,7 @@ nodesEndpoints.MapGet("/nodes", async Task<Results<Ok<IEnumerable<FullNodeDataDt
     .WithSummary("Get full nodes data for a specific date.")
     .WithOpenApi();
 
+// Get number of nodes grouped by dates
 nodesEndpoints.MapGet("/nodes/count", async Task<Results<Ok<IEnumerable<NumberOfNodesGroupedByDatesDto>>, NotFound, BadRequest>>
         (DateTime? dateFrom, DateTime? dateTo, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
     {
@@ -69,13 +71,14 @@ nodesEndpoints.MapGet("/nodes/count", async Task<Results<Ok<IEnumerable<NumberOf
     .WithSummary("Get number of nodes grouped by dates.")
     .WithOpenApi();
 
+// Get number of nodes grouped by country for a specific date
 nodesEndpoints.MapGet("/nodes/countries/count", async Task<Results<Ok<IEnumerable<NumberOfNodesGroupedByCountryDto>>, NotFound, BadRequest>>
-        (DateTime? date, bool? isOnline, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
+        (DateTime? date, bool? isOnline, string? nodeVersion, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
     {
         date ??= DateTime.Now;
 
         IEnumerable<NumberOfNodesGroupedByCountryDto> nodesGroupedByCountry =
-            (await kadenaNodeWatcherService.GetNumberOfNodesGroupedByCountry(date.Value, isOnline)).ToList();
+            (await kadenaNodeWatcherService.GetNumberOfNodesGroupedByCountry(date.Value, isOnline, nodeVersion)).ToList();
         
         return !nodesGroupedByCountry.Any() ? TypedResults.NotFound() : TypedResults.Ok(nodesGroupedByCountry);
     })
@@ -83,6 +86,7 @@ nodesEndpoints.MapGet("/nodes/countries/count", async Task<Results<Ok<IEnumerabl
     .WithSummary("Get number of nodes grouped by country for a specific date.")
     .WithOpenApi();
 
+// Get number of nodes grouped by version for a specific date
 nodesEndpoints.MapGet("/nodes/versions/count", async Task<Results<Ok<IEnumerable<NumberOfNodesGroupedByVersionDto>>, NotFound, BadRequest>>
         (DateTime? date, bool? isOnline, IKadenaNodeWatcherService kadenaNodeWatcherService) =>
     {

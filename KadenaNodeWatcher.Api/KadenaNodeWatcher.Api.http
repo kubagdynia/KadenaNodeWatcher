@@ -6,41 +6,55 @@
 GET {{KadenaNodeWatcher.Api}}/nodes?date=2024-03-08
 Accept: application/json
 
-### Get number of nodes grouped by dates
+### Get the number of nodes grouped by dates
 
-GET {{KadenaNodeWatcher.Api}}/nodes/count?dateFrom=2024-01-30&dateTo=2024-02-09
+GET {{KadenaNodeWatcher.Api}}/nodes/count?dateFrom=2024-03-22&dateTo=2024-03-22
 Accept: application/json
+
+
 
 // nodes/countries
 
-### Get number of nodes grouped by country
+### Get the number of nodes grouped by country - filtered by date
 
 GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07
 Accept: application/json
 
-### Get number of nodes grouped by country - online
+### Get the number of nodes grouped by country - filtered by date and status online
 
-GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-08&isOnline=true
+GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-25&isOnline=true
 Accept: application/json
 
-### Get number of nodes grouped by country - offline
+### Get the number of nodes grouped by country - filtered by date and status offline
 
 GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-01-30&isOnline=false
 Accept: application/json
 
+### Get the number of nodes grouped by country - filtered by date and nodeVersion
+
+GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07&nodeVersion=2.23
+Accept: application/json
+
+### Get the number of nodes grouped by country - filtered by date, status online and nodeVersion
+
+GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07&isOnline=true&nodeVersion=2.23
+Accept: application/json
+
+
+
 // nodes/versions
 
-### Get number of nodes grouped by version
+### Get the number of nodes grouped by version
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-18
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-07
 Accept: application/json
 
-### Get number of nodes grouped by version - online
+### Get the number of nodes grouped by version - online
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-09&isOnline=true
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-04-08&isOnline=true
 Accept: application/json
 
-### Get number of nodes grouped by version - offline
+### Get the number of nodes grouped by version - offline
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-09&isOnline=false
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-22&isOnline=false
 Accept: application/json

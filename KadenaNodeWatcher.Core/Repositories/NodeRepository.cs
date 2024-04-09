@@ -65,7 +65,7 @@ internal class NodeRepository(
     }
     
     public async Task<IEnumerable<NumberOfNodesGroupedByCountryDb>> GetNumberOfNodesGroupedByCountry(
-        DateTime date, bool? isOnline = null)
+        DateTime date, bool? isOnline = null, string nodeVersion = null)
     {
         using var conn = connectionFactory.Connection();
 
@@ -75,14 +75,14 @@ internal class NodeRepository(
 
         if (isOnline.HasValue)
         {
-            parameters = new { date = unixTime, isOnline };
+            parameters = new { date = unixTime, isOnline, nodeVersion };
             return await conn.QueryAsync<NumberOfNodesGroupedByCountryDb>(
-                nodeCommandQueries.GetNumberOfNodesGroupedByCountry(isOnline), parameters);
+                nodeCommandQueries.GetNumberOfNodesGroupedByCountry(isOnline, nodeVersion), parameters);
         }
 
-        parameters = new { date = unixTime };
+        parameters = new { date = unixTime, nodeVersion };
         return await conn.QueryAsync<NumberOfNodesGroupedByCountryDb>(
-            nodeCommandQueries.GetNumberOfNodesGroupedByCountry(), parameters);
+            nodeCommandQueries.GetNumberOfNodesGroupedByCountry(isOnline: null, nodeVersion), parameters);
     }
     
     public async Task<IEnumerable<NumberOfNodesGroupedByVersionDb>> GetNumberOfNodesGroupedByVersion(

@@ -13,7 +13,7 @@ public interface IKadenaNodeWatcherService
 
     Task<IEnumerable<NumberOfNodesGroupedByDatesDto>> GetNumberOfNodesGroupedByDates(DateTime dateFrom, DateTime dateTo);
     
-    Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(DateTime dateTime, bool? isOnline = null);
+    Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(DateTime dateTime, bool? isOnline = null, string nodeVersion = null);
 
     Task<IEnumerable<NumberOfNodesGroupedByVersionDto>> GetNumberOfNodesGroupedByVersion(DateTime dateTime, bool? isOnline = null);
 

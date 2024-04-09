@@ -124,10 +124,10 @@ internal class KadenaNodeWatcherService(
     }
 
     public async Task<IEnumerable<NumberOfNodesGroupedByCountryDto>> GetNumberOfNodesGroupedByCountry(
-        DateTime dateTime, bool? isOnline = null)
+        DateTime dateTime, bool? isOnline = null, string nodeVersion = null)
     {
         var nodesGroupedByCountry =
-            await nodeRepository.GetNumberOfNodesGroupedByCountry(dateTime, isOnline);
+            await nodeRepository.GetNumberOfNodesGroupedByCountry(dateTime, isOnline, nodeVersion);
 
         return nodesGroupedByCountry.Select(
             item => new NumberOfNodesGroupedByCountryDto
