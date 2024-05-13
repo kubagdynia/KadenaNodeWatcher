@@ -46,7 +46,7 @@ Accept: application/json
 
 ### Get the number of nodes grouped by version
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-07
+GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-05-13
 Accept: application/json
 
 ### Get the number of nodes grouped by version - online

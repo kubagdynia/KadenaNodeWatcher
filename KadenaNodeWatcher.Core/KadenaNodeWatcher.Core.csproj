@@ -14,8 +14,8 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Polly" Version="8.3.1" />
-    <PackageReference Include="JK.IpGeolocation" Version="0.3.1" />
+    <PackageReference Include="Polly" Version="8.4.0" />
+    <PackageReference Include="JK.IpGeolocation" Version="0.3.2" />
   </ItemGroup>
   
   <ItemGroup>
