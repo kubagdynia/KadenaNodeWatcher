@@ -6,8 +6,19 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// get connection string
+var redisConnectionString = builder.Configuration.GetConnectionString("RedisCache");
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// redis configuration
+builder.Services.AddStackExchangeRedisOutputCache(opt => opt.Configuration = redisConnectionString);
+builder.Services.AddOutputCache(opt =>
+{
+    opt.AddBasePolicy(c => c.Expire(TimeSpan.FromSeconds(60)));
+    opt.AddPolicy("CustomPolicy", c => c.Expire(TimeSpan.FromSeconds(30)));
+});
 
 // defining Serilog configs
 Log.Logger = new LoggerConfiguration()
@@ -38,6 +49,8 @@ else
     app.UseExceptionHandler();
 }
 
+app.UseOutputCache();
+
 app.UseHttpsRedirection();
 
 var nodesEndpoints = app.MapGroup("kadenanodes/api/v1");
@@ -53,6 +66,7 @@ nodesEndpoints.MapGet("/nodes", async Task<Results<Ok<IEnumerable<FullNodeDataDt
     })
     .WithName("GetNodes")
     .WithSummary("Get full nodes data for a specific date.")
+    .CacheOutput()
     .WithOpenApi();
 
 // Get number of nodes grouped by dates
@@ -69,6 +83,7 @@ nodesEndpoints.MapGet("/nodes/count", async Task<Results<Ok<IEnumerable<NumberOf
     })
     .WithName("GetNumberOfNodesGroupedByDates")
     .WithSummary("Get number of nodes grouped by dates.")
+    .CacheOutput()
     .WithOpenApi();
 
 // Get number of nodes grouped by country for a specific date
@@ -84,6 +99,7 @@ nodesEndpoints.MapGet("/nodes/countries/count", async Task<Results<Ok<IEnumerabl
     })
     .WithName("GetNumberOfNodesGroupedByCountry")
     .WithSummary("Get number of nodes grouped by country for a specific date.")
+    .CacheOutput()
     .WithOpenApi();
 
 // Get number of nodes grouped by version for a specific date
@@ -99,6 +115,7 @@ nodesEndpoints.MapGet("/nodes/versions/count", async Task<Results<Ok<IEnumerable
     })
     .WithName("GetNumberOfNodesGroupedByVersion")
     .WithSummary("Get number of nodes grouped by version for a specific date.")
+    .CacheOutput()
     .WithOpenApi();
 
 app.Run();

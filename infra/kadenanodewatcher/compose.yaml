@@ -3,6 +3,7 @@ version: "3.9"
 services:
   nginx:
     image: nginx:stable-alpine
+    container_name: kadenanodewatcher-nginx
     volumes:
       - ./nginx/html:/usr/share/nginx/html
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
@@ -27,6 +28,17 @@ services:
       - type: bind
         source: ../logs
         target: /app/infra/logs
+    depends_on:
+      - cache
+    networks:
+      - nginx-network
+  
+  cache:
+    image: redis:latest
+    container_name: kadenanodewatcher-redis
+    restart: always
+    ports:
+      - '6379:6379'
     networks:
       - nginx-network
 
