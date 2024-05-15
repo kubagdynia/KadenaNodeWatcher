@@ -6,6 +6,13 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", false, false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", true, false)
+    .AddCommandLine(args)
+    .AddEnvironmentVariables();
+
 // get connection string
 var redisConnectionString = builder.Configuration.GetConnectionString("RedisCache");
 
