@@ -60,7 +60,7 @@ internal class NodeDbConnectionFactory : SqliteDbConnectionFactory
                     (
 	                    Id                                  INTEGER PRIMARY KEY AUTOINCREMENT,
 	                    Name						        VARCHAR(100),
-                        Content                             TEXT,
+                        Content                             TEXT NULL,
                         Timestamp 							DATE DEFAULT (strftime('%s', 'now'))
                     );
                 CREATE UNIQUE INDEX Stats_Name_ix ON Stats(Name);
