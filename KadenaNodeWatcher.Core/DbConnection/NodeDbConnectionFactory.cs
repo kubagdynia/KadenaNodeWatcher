@@ -56,6 +56,15 @@ internal class NodeDbConnectionFactory : SqliteDbConnectionFactory
                     );
                 CREATE UNIQUE INDEX IpGeolocation_IpAddress_ix ON IpGeolocation(IpAddress);
 
+                CREATE TABLE IF NOT EXISTS Stats
+                    (
+	                    Id                                  INTEGER PRIMARY KEY AUTOINCREMENT,
+	                    Name						        VARCHAR(100),
+                        Content                             TEXT,
+                        Timestamp 							DATE DEFAULT (strftime('%s', 'now'))
+                    );
+                CREATE UNIQUE INDEX Stats_Name_ix ON Stats(Name);
+
                 ");
         
         // select datetime(created, 'unixepoch'), date(created, 'unixepoch'),  time(created, 'unixepoch') from Nodes
