@@ -7,6 +7,7 @@ using KadenaNodeWatcher.Core.Logs;
 using KadenaNodeWatcher.Core.Repositories;
 using KadenaNodeWatcher.Core.Repositories.CommandQueries;
 using KadenaNodeWatcher.Core.Services;
+using KadenaNodeWatcher.Core.Statistics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Polly;
@@ -41,6 +42,9 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IDbLoggerRepository, DbLoggerRepository>();
         services.AddTransient<IDbLogger, DbLogger>();
         services.AddTransient<IAppLogger, AppLogger>();
+        
+        services.AddTransient<IStatsRepository, StatsRepository>();
+        services.AddTransient<IStats, Stats>();
 
         services.AddTransient<IKadenaNodeWatcherService, KadenaNodeWatcherService>();
         

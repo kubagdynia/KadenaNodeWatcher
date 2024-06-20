@@ -14,8 +14,6 @@ internal class NodeRepository(
         using var conn = connectionFactory.Connection();
 
         await conn.ExecuteAsync(nodeCommandQueries.AddNode, node);
-
-        await Task.CompletedTask;
     }
 
     public async Task AddNodes(IEnumerable<NodeDbModel> nodes)
@@ -29,8 +27,6 @@ internal class NodeRepository(
         await conn.ExecuteAsync(nodeCommandQueries.AddNode, nodes, transaction: sqlTransaction);
 
         sqlTransaction.Commit();
-
-        await Task.CompletedTask;
     }
 
     public async Task<int> GetNumberOfNodes(DateTime date, bool? isOnline = null)
@@ -166,8 +162,6 @@ internal class NodeRepository(
         await conn.ExecuteAsync(nodeCommandQueries.AddIpGeolocation, ipGeolocation, transaction: sqlTransaction);
 
         sqlTransaction.Commit();
-
-        await Task.CompletedTask;
     }
 
     public async Task<IEnumerable<NodeDbModel>> GetNodesWithoutIpGeolocation(int numberOfRecords)

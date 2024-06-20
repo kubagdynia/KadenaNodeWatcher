@@ -3,15 +3,8 @@ using KadenaNodeWatcher.Core.Logs.Models.DbModels;
 
 namespace KadenaNodeWatcher.Core.Logs;
 
-public class DbLogger : IDbLogger
+public class DbLogger(IDbLoggerRepository repository) : IDbLogger
 {
-    private readonly IDbLoggerRepository _repository;
-
-    public DbLogger(IDbLoggerRepository repository)
-    {
-        _repository = repository;
-    }
-    
     public void AddInfoLog(string message, DbLoggerOperationType operationType = DbLoggerOperationType.None)
         => AddLog(message, operationType, DbLoggerOperationStatus.Info);
 
@@ -38,7 +31,7 @@ public class DbLogger : IDbLogger
             Content = message
         };
 
-        _repository.AddLog(logDbModel);
+        repository.AddLog(logDbModel);
     }
 
     private string GetExceptionMessage(Exception ex)
