@@ -11,6 +11,8 @@ using KadenaNodeWatcher.Core.Models.Dto;
 using KadenaNodeWatcher.Core.Models.NodeData;
 using KadenaNodeWatcher.Core.Repositories;
 using KadenaNodeWatcher.Core.Repositories.DbModels;
+using KadenaNodeWatcher.Core.Statistics;
+using KadenaNodeWatcher.Core.Statistics.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -22,7 +24,8 @@ internal class KadenaNodeWatcherService(
     INodeRepository nodeRepository,
     IOptions<ChainwebSettings> chainwebSettings,
     IAppLogger appLogger,
-    ILogger<ChainwebNodeService> logger)
+    ILogger<ChainwebNodeService> logger,
+    IStats stats)
     : IKadenaNodeWatcherService
 {
     private readonly ChainwebSettings _chainwebSettings = chainwebSettings.Value;
@@ -99,6 +102,8 @@ internal class KadenaNodeWatcherService(
         await SaveNodes(uniquePeers);
 
         appLogger.AddInfoLog($"FINISH - number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
+        
+        stats.AddOrUpdateStats(StatsName.GetNodesData, $"number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
 
         await Task.CompletedTask;
     }

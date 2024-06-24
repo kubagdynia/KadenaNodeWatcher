@@ -14,4 +14,14 @@ public class Stats(IStatsRepository repository) : IStats
         };
         repository.AddStats(statsDbModel);
     }
+
+    public void AddOrUpdateStats(StatsName statsName, string message)
+    {
+        var statsDbModel = new StatsDbModel
+        {
+            Name = statsName.ToString(),
+            Content = string.IsNullOrEmpty(message) ? null :  message
+        };
+        repository.AddOrUpdateStats(statsDbModel);
+    }
 }

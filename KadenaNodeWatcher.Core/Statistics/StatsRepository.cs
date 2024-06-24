@@ -11,4 +11,15 @@ internal class StatsRepository(IDbConnectionFactory connectionFactory) : IStatsR
         using var conn = connectionFactory.Connection();
         await conn.ExecuteAsync("INSERT INTO Stats (Name, Content) VALUES (@Name, @Content)", statsDbModel);
     }
-}
+
+    public async Task AddOrUpdateStats(StatsDbModel statsDbModel)
+    {
+        using var conn = connectionFactory.Connection();
+
+        await conn.ExecuteAsync(
+            """
+            INSERT OR IGNORE INTO Stats (Name, Content) VALUES (@Name, @Content);
+            UPDATE Stats SET Content = @Content, Timestamp = (strftime('%s', 'now')) WHERE Name = @Name;
+            """, statsDbModel);
+    }
+                                }
