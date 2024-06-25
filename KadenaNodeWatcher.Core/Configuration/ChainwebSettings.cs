@@ -64,7 +64,7 @@ public class ChainwebSettings
             return -1;
         }
 
-        if (!networkConfig.RootNodes.Any())
+        if (networkConfig.RootNodes.Count == 0)
         {
             return -1;
         }

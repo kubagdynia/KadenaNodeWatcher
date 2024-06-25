@@ -3,8 +3,8 @@ namespace KadenaNodeWatcher.Core.Statistics.Models;
 public enum StatsName
 {
     None,
-    GetNodesData,
-    GetIpGeolocations
+    LastCheckingNodesData,
+    LastCheckingIpGeolocations
 }
 
 public static class StatsNameExtensions

@@ -13,9 +13,9 @@ public static class IpHelper
             case UriHostNameType.Dns:
                 try
                 {
-                    IPAddress[] ddIpAddresses = Dns.GetHostAddresses(hostName);
-                    IPAddress ipAddress = ddIpAddresses.FirstOrDefault();
-                    string ipAddr = ipAddress?.ToString();
+                    var ddIpAddresses = Dns.GetHostAddresses(hostName);
+                    var ipAddress = ddIpAddresses.FirstOrDefault();
+                    var ipAddr = ipAddress?.ToString();
                     
                     return string.IsNullOrEmpty(ipAddr) ? null : ipAddr;
                 }
@@ -28,7 +28,7 @@ public static class IpHelper
             case UriHostNameType.Unknown:
                 try
                 {
-                    Uri uri = new Uri(hostName);
+                    var uri = new Uri(hostName);
                     return uri.GetIp();
                 }
                 catch

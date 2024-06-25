@@ -103,7 +103,7 @@ internal class KadenaNodeWatcherService(
 
         appLogger.AddInfoLog($"FINISH - number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
         
-        stats.AddOrUpdateStats(StatsName.GetNodesData, $"number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
+        stats.AddOrUpdateStats(StatsName.LastCheckingNodesData, $"number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
 
         await Task.CompletedTask;
     }
@@ -200,6 +200,8 @@ internal class KadenaNodeWatcherService(
         }
         
         appLogger.AddInfoLog($"Finish checking IP geolocation: {nodes.Count}", DbLoggerOperationType.GetIpGeolocations);
+        
+        stats.AddOrUpdateStats(StatsName.LastCheckingIpGeolocations, $"number of addresses: {nodes.Count}");
         
         await Task.CompletedTask;
     }

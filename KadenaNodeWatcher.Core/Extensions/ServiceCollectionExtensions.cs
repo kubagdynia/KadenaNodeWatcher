@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
 {
     public static void RegisterCore(this IServiceCollection services, IConfiguration configuration, string chainwebConfigSectionName = "Chainweb")
     {
-        IConfigurationSection chainwebConfig = configuration.GetSection(chainwebConfigSectionName);
+        var chainwebConfig = configuration.GetSection(chainwebConfigSectionName);
 
         if (!chainwebConfig.Exists())
         {
