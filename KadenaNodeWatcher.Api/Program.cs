@@ -60,7 +60,7 @@ app.UseOutputCache();
 
 app.UseHttpsRedirection();
 
-var nodesEndpoints = app.MapGroup("kadenanodes/api/v1");
+RouteGroupBuilder nodesEndpoints = app.MapGroup("kadenanodes/api/v1");
 
 // Get full nodes data for a specific date
 nodesEndpoints.MapGet("/nodes", async Task<Results<Ok<IEnumerable<FullNodeDataDto>>, NotFound, BadRequest>>

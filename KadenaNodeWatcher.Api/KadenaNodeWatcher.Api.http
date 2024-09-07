@@ -1,14 +1,14 @@
-@KadenaNodeWatcher.Api_HostAddress = https://kadenanodes.futurepenguin.com
-@KadenaNodeWatcher.Api  = {{KadenaNodeWatcher.Api_HostAddress}}/kadenanodes/api/v1
+@hostAddress = https://kadenanodes.futurepenguin.com
+@apiAddress  = {{hostAddress}}/kadenanodes/api/v1
 
 ### Get nodes
 
-GET {{KadenaNodeWatcher.Api}}/nodes?date=2024-03-08
+GET {{apiAddress}}/nodes?date=2024-03-08
 Accept: application/json
 
 ### Get the number of nodes grouped by dates
 
-GET {{KadenaNodeWatcher.Api}}/nodes/count?dateFrom=2024-03-22&dateTo=2024-03-22
+GET {{apiAddress}}/nodes/count?dateFrom=2024-03-22&dateTo=2024-03-22
 Accept: application/json
 
 
@@ -17,27 +17,27 @@ Accept: application/json
 
 ### Get the number of nodes grouped by country - filtered by date
 
-GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07
+GET {{apiAddress}}/nodes/countries/count?date=2024-03-07
 Accept: application/json
 
 ### Get the number of nodes grouped by country - filtered by date and status online
 
-GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-25&isOnline=true
+GET {{apiAddress}}/nodes/countries/count?date=2024-03-25&isOnline=true
 Accept: application/json
 
 ### Get the number of nodes grouped by country - filtered by date and status offline
 
-GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-01-30&isOnline=false
+GET {{apiAddress}}/nodes/countries/count?date=2024-01-30&isOnline=false
 Accept: application/json
 
 ### Get the number of nodes grouped by country - filtered by date and nodeVersion
 
-GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07&nodeVersion=2.23
+GET {{apiAddress}}/nodes/countries/count?date=2024-03-07&nodeVersion=2.23
 Accept: application/json
 
 ### Get the number of nodes grouped by country - filtered by date, status online and nodeVersion
 
-GET {{KadenaNodeWatcher.Api}}/nodes/countries/count?date=2024-03-07&isOnline=true&nodeVersion=2.23
+GET {{apiAddress}}/nodes/countries/count?date=2024-03-07&isOnline=true&nodeVersion=2.23
 Accept: application/json
 
 
@@ -46,15 +46,15 @@ Accept: application/json
 
 ### Get the number of nodes grouped by version
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-07-17
+GET {{apiAddress}}/nodes/versions/count?date=2024-09-07
 Accept: application/json
 
 ### Get the number of nodes grouped by version - online
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-04-08&isOnline=true
+GET {{apiAddress}}/nodes/versions/count?date=2024-04-08&isOnline=true
 Accept: application/json
 
 ### Get the number of nodes grouped by version - offline
 
-GET {{KadenaNodeWatcher.Api}}/nodes/versions/count?date=2024-03-22&isOnline=false
+GET {{apiAddress}}/nodes/versions/count?date=2024-03-22&isOnline=false
 Accept: application/json
