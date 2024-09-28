@@ -101,9 +101,9 @@ internal class KadenaNodeWatcherService(
         
         await SaveNodes(uniquePeers);
 
-        appLogger.AddInfoLog($"FINISH - number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
+        appLogger.AddInfoLog($"FINISH - Number of nodes: {uniquePeers.Count}, Reachable: {online}, Unreachable: {offline}");
         
-        stats.AddOrUpdateStats(StatsName.LastCheckingNodesData, $"number of nodes: {uniquePeers.Count}, Online: {online}, Offline: {offline}");
+        stats.AddOrUpdateStats(StatsName.LastCheckingNodesData, $"Number of nodes: {uniquePeers.Count}, Reachable: {online}, Unreachable: {offline}");
 
         await Task.CompletedTask;
     }
@@ -384,7 +384,7 @@ internal class KadenaNodeWatcherService(
         var online = peers.Count(c => c.IsOnline.HasValue && c.IsOnline.Value);
         var offline = peers.Count - online;
         
-        appLogger.AddInfoLog($"Finish. Online: {online}, Offline: {offline}",
+        appLogger.AddInfoLog($"Finish. Reachable: {online}, Unreachable: {offline}",
             DbLoggerOperationType.GetNodesData);
         
         return (online, offline);
