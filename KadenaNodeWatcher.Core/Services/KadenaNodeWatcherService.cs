@@ -25,7 +25,7 @@ internal class KadenaNodeWatcherService(
     IOptions<ChainwebSettings> chainwebSettings,
     IAppLogger appLogger,
     ILogger<ChainwebNodeService> logger,
-    IStats stats)
+    IStatsService statsService)
     : IKadenaNodeWatcherService
 {
     private readonly ChainwebSettings _chainwebSettings = chainwebSettings.Value;
@@ -103,7 +103,7 @@ internal class KadenaNodeWatcherService(
 
         appLogger.AddInfoLog($"FINISH - Number of nodes: {uniquePeers.Count}, Reachable: {online}, Unreachable: {offline}");
         
-        stats.AddOrUpdateStats(StatsName.LastCheckingNodesData, $"Number of nodes: {uniquePeers.Count}, Reachable: {online}, Unreachable: {offline}");
+        statsService.AddOrUpdateStats(StatsName.LastCheckingNodesData, $"Number of nodes: {uniquePeers.Count}, Reachable: {online}, Unreachable: {offline}");
 
         await Task.CompletedTask;
     }
@@ -201,7 +201,7 @@ internal class KadenaNodeWatcherService(
         
         appLogger.AddInfoLog($"Finish checking IP geolocation: {nodes.Count}", DbLoggerOperationType.GetIpGeolocations);
         
-        stats.AddOrUpdateStats(StatsName.LastCheckingIpGeolocations, $"number of addresses: {nodes.Count}");
+        statsService.AddOrUpdateStats(StatsName.LastCheckingIpGeolocations, $"Number of addresses: {nodes.Count}");
         
         await Task.CompletedTask;
     }

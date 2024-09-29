@@ -5,14 +5,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace KadenaNodeWatcher.Core.DbConnection;
 
-internal class NodeDbConnectionFactory : SqliteDbConnectionFactory
+internal class NodeDbConnectionFactory(IConfiguration config, string connectionName = "DefaultConnection")
+    : SqliteDbConnectionFactory(config, connectionName)
 {
-    public NodeDbConnectionFactory(IConfiguration config, string connectionName = "DefaultConnection")
-        : base(config, connectionName)
-    {
-        
-    }
-
     protected override void CreateDb(IDbConnection dbConnection)
     {
         dbConnection.Execute(

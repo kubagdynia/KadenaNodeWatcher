@@ -2,7 +2,7 @@ using Dapper;
 using DbConnectionExtensions.DbConnection.Base;
 using KadenaNodeWatcher.Core.Statistics.Models.DbModels;
 
-namespace KadenaNodeWatcher.Core.Statistics;
+namespace KadenaNodeWatcher.Core.Statistics.Repositories;
 
 internal class StatsRepository(IDbConnectionFactory connectionFactory) : IStatsRepository
 {
@@ -22,4 +22,4 @@ internal class StatsRepository(IDbConnectionFactory connectionFactory) : IStatsR
             UPDATE Stats SET Content = @Content, Timestamp = (strftime('%s', 'now')) WHERE Name = @Name;
             """, statsDbModel);
     }
-                                }
+}

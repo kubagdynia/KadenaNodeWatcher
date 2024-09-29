@@ -1,9 +1,10 @@
 using KadenaNodeWatcher.Core.Statistics.Models;
 using KadenaNodeWatcher.Core.Statistics.Models.DbModels;
+using KadenaNodeWatcher.Core.Statistics.Repositories;
 
 namespace KadenaNodeWatcher.Core.Statistics;
 
-public class Stats(IStatsRepository repository) : IStats
+internal class StatsService(IStatsRepository repository) : IStatsService
 {
     public void AddStats(StatsName statsName, string message)
     {

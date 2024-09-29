@@ -1,8 +1,8 @@
 using KadenaNodeWatcher.Core.Statistics.Models.DbModels;
 
-namespace KadenaNodeWatcher.Core.Statistics;
+namespace KadenaNodeWatcher.Core.Statistics.Repositories;
 
-public interface IStatsRepository
+internal interface IStatsRepository
 {
     Task AddStats(StatsDbModel statsDbModel);
     
