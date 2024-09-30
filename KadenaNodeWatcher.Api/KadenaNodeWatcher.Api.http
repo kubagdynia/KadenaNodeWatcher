@@ -58,3 +58,12 @@ Accept: application/json
 
 GET {{apiAddress}}/nodes/versions/count?date=2024-03-22&isOnline=false
 Accept: application/json
+
+
+
+// nodes/stats
+
+### Get stats
+
+GET {{apiAddress}}/nodes/stats
+Accept: application/json

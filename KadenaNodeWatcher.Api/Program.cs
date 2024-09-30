@@ -17,7 +17,7 @@ var redisConnectionString = builder.Configuration.GetConnectionString("RedisCach
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// redis configuration
+// redis configuration for output cache
 builder.Services.AddStackExchangeRedisOutputCache(opt => opt.Configuration = redisConnectionString);
 builder.Services.AddOutputCache(opt =>
 {

@@ -1,9 +1,7 @@
-namespace KadenaNodeWatcher.Core.Statistics.Models.DbModels;
+namespace KadenaNodeWatcher.Core.Statistics.Models.Dto;
 
-public class StatsDbModel
+public record StatsDto
 {
-    public int Id { get; set; }
-    
     /// <summary>
     /// The name of the operation.
     /// </summary>
@@ -15,7 +13,7 @@ public class StatsDbModel
     public string Content { get; set; }
     
     /// <summary>
-    ///  Event timestamp
+    /// Update date.
     /// </summary>
-    public long Timestamp { get; set; }
+    public DateTime Updated { get; set; }
 }

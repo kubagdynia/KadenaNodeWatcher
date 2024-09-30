@@ -1,5 +1,7 @@
 using KadenaNodeWatcher.Core.Models.Dto;
 using KadenaNodeWatcher.Core.Services;
+using KadenaNodeWatcher.Core.Statistics;
+using KadenaNodeWatcher.Core.Statistics.Models.Dto;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace KadenaNodeWatcher.Api;
@@ -21,6 +23,9 @@ public static class NodeWatcherEndpoints
 
         // GET /kadenanodes/api/v1/nodes/versions/count
         GetNumberOfNodesGroupedByVersionForASpecificDate(route);
+        
+        // GET /kadenanodes/api/v1/stats
+        GetStats(route);
     }
 
     private static void GetFullNodesDataForASpecificDate(RouteGroupBuilder route)
@@ -90,6 +95,20 @@ public static class NodeWatcherEndpoints
             })
             .WithName("GetNumberOfNodesGroupedByVersion")
             .WithSummary("Get number of nodes grouped by version for a specific date.")
+            .CacheOutput()
+            .WithOpenApi();
+    }
+    
+    private static void GetStats(RouteGroupBuilder route)
+    {
+        route.MapGet("/nodes/stats", async Task<Results<Ok<IEnumerable<StatsDto>>, NotFound>>
+                (IStatsService statsService) =>
+            {
+                var stats = await statsService.GetStats();
+                return stats is null ? TypedResults.NotFound() : TypedResults.Ok(stats);
+            })
+            .WithName("GetStats")
+            .WithSummary("Get the statistics.")
             .CacheOutput()
             .WithOpenApi();
     }
