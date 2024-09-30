@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Models.Dto;
 
-public class FullNodeDataDto
+public record FullNodeDataDto
 {
     public int Id { get; set; }
     

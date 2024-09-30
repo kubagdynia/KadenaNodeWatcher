@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Models.Dto;
 
-public class NumberOfNodesGroupedByVersionDto
+public record NumberOfNodesGroupedByVersionDto
 {
     public string NodeVersion { get; set; }
     

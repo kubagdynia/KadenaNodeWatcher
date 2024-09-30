@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Models.Dto;
 
-public class NumberOfNodesGroupedByCountryDto
+public record NumberOfNodesGroupedByCountryDto
 {
     public string CountryName { get; set; }
     

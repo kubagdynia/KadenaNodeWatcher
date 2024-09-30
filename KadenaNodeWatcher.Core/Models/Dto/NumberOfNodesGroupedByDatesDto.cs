@@ -1,6 +1,6 @@
 namespace KadenaNodeWatcher.Core.Models.Dto;
 
-public class NumberOfNodesGroupedByDatesDto
+public record NumberOfNodesGroupedByDatesDto
 {
     public DateTime Date { get; set; }
 
