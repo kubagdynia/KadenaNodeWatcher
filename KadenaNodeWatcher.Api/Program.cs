@@ -17,6 +17,9 @@ var redisConnectionString = builder.Configuration.GetConnectionString("RedisCach
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// add health checks
+builder.Services.AddHealthChecks();
+
 // redis configuration for output cache
 builder.Services.AddStackExchangeRedisOutputCache(opt => opt.Configuration = redisConnectionString);
 builder.Services.AddOutputCache(opt =>
@@ -57,6 +60,9 @@ else
 app.UseOutputCache();
 
 app.UseHttpsRedirection();
+
+// Health checks
+app.UseHealthChecks("/kadenanodes/api/health");
 
 // Map the NodeWatcher endpoints
 app.MapNodeWatcherEndpoints();
