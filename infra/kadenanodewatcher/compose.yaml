@@ -11,11 +11,11 @@ services:
       - "8085:80"
     restart: unless-stopped
     depends_on:
-      - webapi
+      - webapi-service
     networks:
       - nginx-network
 
-  webapi:
+  webapi-service:
     build: ./webapi
     container_name: kadenanodewatcher-webapi
     restart: unless-stopped
@@ -29,13 +29,13 @@ services:
         source: ../logs
         target: /app/infra/logs
     depends_on:
-      - cache
+      - cache-service
     environment:
-      - CONNECTIONSTRINGS__RedisCache=cache:6379,password=redis123##!!
+      - CONNECTIONSTRINGS__RedisCache=cache-service:6379,password=redis123##!!
     networks:
       - nginx-network
   
-  cache:
+  cache-service:
     image: redis:latest
     container_name: kadenanodewatcher-redis
     restart: always
