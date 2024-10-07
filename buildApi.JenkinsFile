@@ -24,7 +24,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh 'dotnet restore'
+                    sh 'dotnet restore --verbosity normal'
                 }
             }
         }
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'dotnet build --no-restore'
+                        sh 'dotnet build'
                     } finally {
                         archiveArtifacts artifacts: 'KadenaNodeWatcher.Api/*.*', allowEmptyArchive: true
                     }
