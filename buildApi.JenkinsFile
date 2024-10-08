@@ -57,8 +57,11 @@ pipeline {
             }
             steps {
                 script {
-                    // Build Docker Image
+                    // Build Docker Image with version tag
                     dockerImage = docker.build(DOCKER_IMAGE, '-f kadenanodewatcher-api-Dockerfile .')
+                    
+                    // Tag Docker Image with latest
+                    dockerImage.tag(DOCKER_IMAGE_TAG_LATEST)
                 }
             }
         }
@@ -69,13 +72,10 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKER_REGISTRY, 'dockerhubcreds') {
-                        // Push Docker Image
+                        // Push Docker Image with version tag
                         dockerImage.push()
-                        
-                        // Add Docker Image Tag
-                        dockerImage.tag(DOCKER_IMAGE_TAG_LATEST)
 
-                        // Push Docker Image Tag
+                        // Push Docker Image with 'latest' tag
                         dockerImage.push('latest')
                     }
                 }
