@@ -80,7 +80,7 @@ spec:
               mountPath: /host
       containers:
         - name: webapi
-          image: devkaptain/kadenanodewatcher-api:v7
+          image: devkaptain/kadenanodewatcher-api:latest
           volumeMounts:
             - name: data-db
               mountPath: /app/data/db
