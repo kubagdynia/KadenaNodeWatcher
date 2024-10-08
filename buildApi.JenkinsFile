@@ -69,14 +69,14 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKER_REGISTRY, 'dockerhubcreds') {
-                        // Add Docker Image Tag
-                       //dockerImage.tag(DOCKER_IMAGE_TAG_LATEST)
-                        
                         // Push Docker Image
-                        //dockerImage.push()
+                        dockerImage.push()
                         
+                        // Add Docker Image Tag
+                        dockerImage.tag(DOCKER_IMAGE_TAG_LATEST)
+
                         // Push Docker Image Tag
-                        dockerImage.push(DOCKER_IMAGE_TAG_LATEST)
+                        dockerImage.push('latest')
                     }
                 }
             }
