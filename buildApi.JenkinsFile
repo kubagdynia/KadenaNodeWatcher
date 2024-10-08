@@ -2,7 +2,6 @@ pipeline {
     agent none
     environment {
         DOCKER_IMAGE = "devkaptain/kadenanodewatcher-api:v${env.BUILD_NUMBER}"
-        DOCKER_IMAGE_TAG_LATEST = "devkaptain/kadenanodewatcher-api:latest"
         DOCKER_REGISTRY = 'https://index.docker.io/v1/'
         GIT_REPOSITORY = 'https://github.com/kubagdynia/KadenaNodeWatcher'
     }
@@ -61,7 +60,7 @@ pipeline {
                     dockerImage = docker.build(DOCKER_IMAGE, '-f kadenanodewatcher-api-Dockerfile .')
                     
                     // Tag Docker Image with latest
-                    dockerImage.tag(DOCKER_IMAGE_TAG_LATEST)
+                    dockerImage.tag('latest')
                 }
             }
         }
