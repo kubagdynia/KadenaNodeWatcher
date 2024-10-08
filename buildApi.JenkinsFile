@@ -56,6 +56,7 @@ pipeline {
             }
             steps {
                 script {
+                    // Build Docker Image
                     dockerImage = docker.build(DOCKER_IMAGE, '-f kadenanodewatcher-api-Dockerfile .')
                 }
             }
@@ -67,6 +68,10 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKER_REGISTRY, 'dockerhubcreds') {
+                        // Add Docker Image Tag
+                        app.tag("latest")
+                        
+                        // Push Docker Image
                         dockerImage.push()
                     }
                 }
