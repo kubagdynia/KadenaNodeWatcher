@@ -80,7 +80,7 @@ pipeline {
     }
     post {
         always {
-            node {
+            node(label: 'docker && DOTNET8') {
                 cleanWs()
             }
         }
