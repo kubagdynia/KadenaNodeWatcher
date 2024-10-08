@@ -2,6 +2,7 @@ pipeline {
     agent none
     environment {
         DOCKER_IMAGE = "devkaptain/kadenanodewatcher-api:v${env.BUILD_NUMBER}"
+        DOCKER_IMAGE_TAG_LATEST = "devkaptain/kadenanodewatcher-api:latest"
         DOCKER_REGISTRY = 'https://index.docker.io/v1/'
         GIT_REPOSITORY = 'https://github.com/kubagdynia/KadenaNodeWatcher'
     }
@@ -69,10 +70,13 @@ pipeline {
                 script {
                     docker.withRegistry(DOCKER_REGISTRY, 'dockerhubcreds') {
                         // Add Docker Image Tag
-                        app.tag("latest")
+                       //dockerImage.tag(DOCKER_IMAGE_TAG_LATEST)
                         
                         // Push Docker Image
-                        dockerImage.push()
+                        //dockerImage.push()
+                        
+                        // Push Docker Image Tag
+                        dockerImage.push(DOCKER_IMAGE_TAG_LATEST)
                     }
                 }
             }
