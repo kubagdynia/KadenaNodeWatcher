@@ -12,6 +12,9 @@ builder.Configuration
     .AddCommandLine(args)
     .AddEnvironmentVariables();
 
+var enableMetricServer = builder.Configuration.GetValue<bool>("Metrics:EnableMetricServer");
+var metricEndpoint = builder.Configuration.GetValue<string>("Metrics:Endpoint", "/metrics");
+
 // get connection string
 var redisConnectionString = builder.Configuration.GetConnectionString("RedisCache");
 
@@ -20,6 +23,12 @@ builder.Services.AddSwaggerGen();
 
 // add health checks
 builder.Services.AddHealthChecks();
+
+if (enableMetricServer)
+{
+    // add metrics
+    builder.Services.UseHttpClientMetrics();
+}
 
 // redis configuration for output cache
 builder.Services.AddStackExchangeRedisOutputCache(opt => opt.Configuration = redisConnectionString);
@@ -45,9 +54,6 @@ builder.Services.AddProblemDetails();
 
 builder.Services.RegisterCore(builder.Configuration);
 
-var enableMetricServer = builder.Configuration.GetValue<bool>("Metrics:EnableMetricServer");
-var metricEndpoint = builder.Configuration.GetValue<string>("Metrics:Endpoint", "/metrics");
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -71,7 +77,7 @@ app.UseHealthChecks("/kadenanodes/api/health");
 // Prometheus metrics endpoint (/metrics) for monitoring and alerting
 if (enableMetricServer)
 {
-    app.UseMetricServer(url: metricEndpoint);
+    app.UseMetricServer(url: metricEndpoint).UseHttpMetrics();
 }
 
 // Map the NodeWatcher endpoints
