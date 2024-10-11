@@ -9,3 +9,9 @@ kubectl describe pod webapi-deployment-85cbc7cdf8-t4bx
 kubectl logs nginx-deployment-9dfff4c95-lsm57 
 
 ```
+
+install Prometheus
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+```
