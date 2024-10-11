@@ -1,5 +1,6 @@
 using KadenaNodeWatcher.Api;
 using KadenaNodeWatcher.Core.Extensions;
+using Prometheus;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,9 @@ builder.Services.AddProblemDetails();
 
 builder.Services.RegisterCore(builder.Configuration);
 
+var enableMetricServer = builder.Configuration.GetValue<bool>("Metrics:EnableMetricServer");
+var metricEndpoint = builder.Configuration.GetValue<string>("Metrics:Endpoint", "/metrics");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -63,6 +67,12 @@ app.UseHttpsRedirection();
 
 // Health checks
 app.UseHealthChecks("/kadenanodes/api/health");
+
+// Prometheus metrics endpoint (/metrics) for monitoring and alerting
+if (enableMetricServer)
+{
+    app.UseMetricServer(url: metricEndpoint);
+}
 
 // Map the NodeWatcher endpoints
 app.MapNodeWatcherEndpoints();
