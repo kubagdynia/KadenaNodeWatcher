@@ -56,7 +56,7 @@ Accept: application/json
 
 ### Get the number of nodes grouped by version - offline
 
-GET {{apiAddress}}/nodes/versions/count?date=2024-03-22&isOnline=false
+GET {{apiAddress}}/nodes/versions/count?date=2024-05-15&isOnline=true
 Accept: application/json
 
 
